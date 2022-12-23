@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration= com.jianyue.lightning.boot.autoconfigure.web.WebAutoConfigure, \
+  com.jianyue.lightning.boot.autoconfigure.feign.FeignAutoConfigure, com.jianyue.lightning.boot.autoconfigure.feign.FeignAutoConfigure
+  
