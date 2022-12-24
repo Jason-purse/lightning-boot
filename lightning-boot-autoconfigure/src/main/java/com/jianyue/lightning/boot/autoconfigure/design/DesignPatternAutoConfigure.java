@@ -1,8 +1,7 @@
 package com.jianyue.lightning.boot.autoconfigure.design;
 
-import com.jianyue.lightning.boot.starter.design.patterns.strategy.DesignPatternConfiguration;
+import com.jianyue.lightning.framework.design.pattern.strategy.DesignPatternConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 /**

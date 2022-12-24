@@ -5,14 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jianyue</groupId>
-    <artifactId>lighting-boot</artifactId>
+    <artifactId>lightning-boot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>lightning-boot-core</module>
         <module>lightning-boot-starters</module>
         <module>lightning-boot-dependencies</module>
         <module>lightning-boot-autoconfigure</module>
-
+        <module>lightning-boot-exceptions</module>
+        <module>lightning-framework-projects</module>
+        <module>lightning-boot-tests</module>
     </modules>
 
     <properties>

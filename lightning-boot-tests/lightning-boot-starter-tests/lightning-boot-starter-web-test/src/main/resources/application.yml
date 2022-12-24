@@ -1,0 +1,7 @@
+server:
+  port: 8090
+lightning:
+  web:
+    config:
+      json:
+        serialize-include-non-null: true
