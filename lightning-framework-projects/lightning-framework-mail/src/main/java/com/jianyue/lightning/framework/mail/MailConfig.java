@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.util.mail;
+package com.jianyue.lightning.framework.mail;
 
 import lombok.Data;
 

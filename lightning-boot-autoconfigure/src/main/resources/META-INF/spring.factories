@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration= com.jianyue.lightning.boot.autoconfigure.web.WebConfigAutoConfiguration, \
   com.jianyue.lightning.boot.autoconfigure.feign.FeignAutoConfigure, \
-  com.jianyue.lightning.boot.autoconfigure.design.DesignPatternAutoConfigure
-  
+  com.jianyue.lightning.boot.autoconfigure.design.DesignPatternAutoConfigure, \
+  com.jianyue.lightning.boot.autoconfigure.redis.RedisAutoConfigure, \
+  com.jianyue.lightning.boot.autoconfigure.mail.MailConfiguration

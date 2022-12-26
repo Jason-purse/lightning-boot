@@ -21,6 +21,13 @@
         <module>lightning-boot-starter-design-patterns</module>
         <module>lightning-boot-starter-daos</module>
         <module>lightning-boot-starter</module>
+        <module>lightning-boot-starter-redis</module>
+        <module>lightning-boot-starter-xxljob</module>
+        <module>lightning-boot-starter-mail</module>
+        <module>lightning-boot-starter-mqtt</module>
+        <module>lightning-boot-starter-swagger</module>
+        <module>lightning-boot-starter-system-log</module>
+        <module>lightning-boot-starter-generic-crud-service</module>
     </modules>
 
 </project>

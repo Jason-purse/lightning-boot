@@ -64,6 +64,10 @@ public interface Result<T> {
         return new DefaultResultImpl<>(code, message, null, null);
     }
 
+    public static <T> Result<T> page(Integer code, String message, List<T> list) {
+        return success(code, message, list);
+    }
+
     /**
      * 通用的处理 ...
      *

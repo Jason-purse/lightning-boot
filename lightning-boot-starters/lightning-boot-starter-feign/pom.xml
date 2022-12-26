@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>com.jianyue</groupId>
-            <artifactId>lightning-boot-feign</artifactId>
+            <artifactId>lightning-framework-feign</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

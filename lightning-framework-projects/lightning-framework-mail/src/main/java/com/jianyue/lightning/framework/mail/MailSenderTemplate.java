@@ -1,8 +1,8 @@
-package com.jianyue.lightning.boot.starter.util.mail;
+package com.jianyue.lightning.framework.mail;
 
 import com.sun.mail.smtp.SMTPTransport;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springside.modules.utils.collection.CollectionUtil;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -53,7 +53,7 @@ public class MailSenderTemplate {
             /*邮件发送*/
             msg.setRecipients(Message.RecipientType.TO,InternetAddress.parse(StringUtils.join(listTo, ",")));
             /*邮件抄送*/
-            if(CollectionUtil.isNotEmpty(listCc)){
+            if(ObjectUtils.isNotEmpty(listCc)){
                 msg.setRecipients(Message.RecipientType.CC,InternetAddress.parse(StringUtils.join(listCc, ",")));
             }
             toSendMail(content, subject, session, msg);

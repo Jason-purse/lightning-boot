@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>lightning-boot-starter-web-test</module>
+        <module>lightning-boot-starter-crud-service-test</module>
     </modules>
 
 </project>

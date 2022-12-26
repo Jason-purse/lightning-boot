@@ -16,6 +16,9 @@
         <module>lightning-framework-web</module>
         <module>lightning-framework-feign</module>
         <module>lightning-framework-design-patterns</module>
+        <module>lightning-framework-xxjob</module>
+        <module>lightning-framework-mail</module>
+        <module>lightning-framework-generic-crud-abstract</module>
     </modules>
 
 

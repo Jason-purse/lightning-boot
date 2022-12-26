@@ -11,4 +11,11 @@
 
     <artifactId>lightning-framework-redis</artifactId>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+        </dependency>
+    </dependencies>
 </project>
