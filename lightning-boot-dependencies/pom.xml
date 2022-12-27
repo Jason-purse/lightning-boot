@@ -19,11 +19,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.jianyue</groupId>
-                <artifactId>lightning-boot-autoconfigure</artifactId>
-                <version>${lightning.boot.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring.boot.version}</version>
@@ -37,25 +32,94 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.jianyue</groupId>
-                <artifactId>lightning-boot-starter-web-exception</artifactId>
+                <artifactId>lightning-boot-autoconfigure</artifactId>
                 <version>${lightning.boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jianyue</groupId>
-                <artifactId>lightning-boot-starter-service-exception</artifactId>
-                <version>${lightning.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jianyue</groupId>
-                <artifactId>lightning-boot-starter-dao-exception</artifactId>
+                <artifactId>lightning-boot-starter</artifactId>
                 <version>${lightning.boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.jianyue</groupId>
                 <artifactId>lightning-boot-starter-web</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-dao-mongo</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-design-patterns</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-feign</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-generic-crud-service</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-mail</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-redis</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-mqtt</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-system-log</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-utils</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-starter-xxljob</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-framework-generic-crud-abstract</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-dao-exception</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-service-exception</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-web-exception</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-boot-core</artifactId>
                 <version>${lightning.boot.version}</version>
             </dependency>
         </dependencies>
