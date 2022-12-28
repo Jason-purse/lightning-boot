@@ -31,6 +31,7 @@
         <javax.mail.version>1.4.7</javax.mail.version>
         <xxl-job-core.version>2.2.0</xxl-job-core.version>
         <mqtt.version>1.2.5</mqtt.version>
+        <mybatis-plus.version>3.5.2</mybatis-plus.version>
     </properties>
 
     <packaging>pom</packaging>
@@ -104,6 +105,12 @@
                 <groupId>org.eclipse.paho</groupId>
                 <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
                 <version>${mqtt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

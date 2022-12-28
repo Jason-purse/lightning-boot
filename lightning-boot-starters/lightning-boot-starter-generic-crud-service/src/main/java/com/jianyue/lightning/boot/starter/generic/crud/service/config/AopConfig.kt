@@ -1,6 +1,7 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.validates.NONE
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.validates.Validation
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.validates.ValidationAnnotation
@@ -16,6 +17,7 @@ import org.springframework.aop.MethodMatcher
 import org.springframework.aop.support.DefaultPointcutAdvisor
 import org.springframework.aop.support.annotation.AnnotationClassFilter
 import org.springframework.aop.support.annotation.AnnotationMethodMatcher
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
@@ -31,6 +33,7 @@ import kotlin.reflect.full.isSubclassOf
 @Configuration
 @EnableAspectJAutoProxy
 @Aspect
+@ConditionalOnBean(value = [DBTemplate::class])
 class AopConfig {
     companion object {
         private val validationGroupCache = ConcurrentReferenceHashMap<Method, Class<out Validation>>();

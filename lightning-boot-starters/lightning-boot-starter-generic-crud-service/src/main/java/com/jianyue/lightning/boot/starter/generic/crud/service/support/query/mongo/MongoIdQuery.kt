@@ -1,5 +1,6 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.query
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.AbstractIdQuery
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 

@@ -1,5 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.db
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.IDQuerySupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
 
@@ -14,27 +15,27 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.Que
  **/
 interface DBTemplate {
 
-    fun <T : Any> add(data: T)
+    fun <T : Entity> add(data: T)
 
-    fun <T: Any> addList(data: List<T>)
+    fun <T: Entity> addList(data: List<T>)
 
-    fun <T : Any> update(data: T)
+    fun <T : Entity> update(data: T)
 
-    fun <T> delete(query: QuerySupport, entityClass: Class<T>)
+    fun <T : Entity> delete(query: QuerySupport, entityClass: Class<T>)
 
-    fun <T> deleteById(query: IDQuerySupport, entityClass: Class<T>)
+    fun <T : Entity> deleteById(query: IDQuerySupport, entityClass: Class<T>)
 
-    fun <T> selectById(query: IDQuerySupport, entityClass: Class<T>): T?
+    fun <T : Entity> selectById(query: IDQuerySupport, entityClass: Class<T>): T?
 
-    fun <T> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T>
+    fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T>
 
-    fun <T> selectFirst(query: QuerySupport, entityClass: Class<T>): T
+    fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T
 
-    fun <T> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T?
+    fun <T : Entity> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T?
 
     /**
      * 根据条件统计
      */
-    fun <T> countBy(query: QuerySupport, entityClass: Class<T>): Long
+    fun <T: Entity> countBy(query: QuerySupport, entityClass: Class<T>): Long
 
 }

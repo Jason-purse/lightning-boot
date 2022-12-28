@@ -10,7 +10,7 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.AsSupport
  * 查询支持标记接口, Query子类应该实现Query 接口,而不应该直接实现它 ...
  **/
 interface QuerySupport :
-    com.jianyue.lightning.framework.generic.crud.abstracted.param.AsSupport<QuerySupport> {
+    AsSupport<QuerySupport> {
 
 }
 

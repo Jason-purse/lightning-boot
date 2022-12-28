@@ -1,8 +1,8 @@
 package com.jianyue.lightning.boot.starter.test.crud.service;
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.entity.StringBasedMongoEntity;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.DefaultMongoQuery;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.MongoQueryInfo;
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo.DefaultMongoQuery;
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo.MongoQueryInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

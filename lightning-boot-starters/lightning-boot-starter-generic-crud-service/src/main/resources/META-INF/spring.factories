@@ -1,1 +1,2 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jianyue.lightning.boot.starter.generic.crud.service.support.db.MongoDbTemplate
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jianyue.lightning.boot.starter.generic.crud.service.config.CrudServiceAutoConfiguration
+  
