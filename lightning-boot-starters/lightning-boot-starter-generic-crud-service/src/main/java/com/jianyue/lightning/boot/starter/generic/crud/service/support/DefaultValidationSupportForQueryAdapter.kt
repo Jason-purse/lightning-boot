@@ -4,6 +4,8 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.entity.IdSupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.query.QueryAssist
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo.MongoIdQuery
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.validates.DefaultValidationSupportAdapter
 
 /**
@@ -17,21 +19,44 @@ interface DefaultValidationSupportForQueryAdapter<SOURCE : IdSupport<*>> :
     Converter<SOURCE, QuerySupport> {
 
 
+    override fun convert(param: SOURCE): QuerySupport? {
+        return validationHandle(param);
+    }
+}
+
+/**
+ * 支持Mongo的forQuery adapter
+ */
+interface DefaultMongoValidationSupportForQueryAdapter<SOURCE : IdSupport<*>>: DefaultValidationSupportForQueryAdapter<SOURCE> {
+
     override fun selectByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return QueryAssist.byId(s.id)
+        return MongoIdQuery(s)
     }
 
 
     override fun deleteByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return QueryAssist.byId(s.id)
+        return MongoIdQuery(s)
     }
 
     override fun updateGroupHandle(s: SOURCE): QuerySupport {
-        return QueryAssist.byId(s.id)
+        return MongoIdQuery(s)
+    }
+}
+
+/**
+ * 支持 jpa的 forQuery adapter
+ */
+interface DefaultJpaValidationSupportForQueryAdapter<SOURCE : IdSupport<*>>: DefaultValidationSupportForQueryAdapter<SOURCE> {
+    override fun selectByIdGroupHandle(s: SOURCE): QuerySupport? {
+        return JpaIdQuery(s)
     }
 
 
-    override fun convert(param: SOURCE): QuerySupport? {
-        return validationHandle(param);
+    override fun deleteByIdGroupHandle(s: SOURCE): QuerySupport? {
+        return JpaIdQuery(s)
+    }
+
+    override fun updateGroupHandle(s: SOURCE): QuerySupport {
+        return JpaIdQuery(s)
     }
 }

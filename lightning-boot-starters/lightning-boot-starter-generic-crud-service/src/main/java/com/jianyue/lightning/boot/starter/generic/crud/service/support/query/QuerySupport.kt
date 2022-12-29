@@ -11,7 +11,6 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.AsSupport
  **/
 interface QuerySupport :
     AsSupport<QuerySupport> {
-
 }
 
 
