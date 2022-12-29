@@ -1,2 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jianyue.lightning.boot.starter.generic.crud.service.config.CrudServiceAutoConfiguration
-  
+
+com.jianyue.lightning.boot.starter.generic.crud.service.support.query.IDQuerySupport=com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo.MongoIdQuery, \
+com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery

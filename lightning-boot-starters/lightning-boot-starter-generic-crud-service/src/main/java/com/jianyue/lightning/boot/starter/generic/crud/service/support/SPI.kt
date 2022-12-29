@@ -28,7 +28,7 @@ object SPI {
             if (it.isNull()) {
                 throw IllegalArgumentException("can't find one implementation")
             }
-            it[0]
+            it[1]
         }
     }
 

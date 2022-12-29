@@ -5,6 +5,8 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.converter
 import com.jianyue.lightning.boot.starter.util.ClassUtil
 import com.jianyue.lightning.boot.starter.util.isNotNull
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.ReleaseAwaredConverter
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.getBeansOfType
 import org.springframework.context.ApplicationContext
@@ -34,6 +36,8 @@ abstract class AbstractConverterAdapter<S, T> : Converter<S, T>, ApplicationCont
     }
 
     private var converters: MutableList<Converter<S, T>> = mutableListOf();
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
 
     override fun setApplicationContext(ctx: ApplicationContext) {

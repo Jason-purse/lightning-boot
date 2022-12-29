@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
 import java.lang.reflect.ParameterizedType
+import kotlin.math.log
 
 /**
  * @author FLJ
@@ -40,7 +41,7 @@ import java.lang.reflect.ParameterizedType
  *
  * 其他的select / delete / *ById( 对null / noneQuery /IdQuery 进行了严格的控制),这与上面的三个操作相反,子类例如可以增强功能,例如传递null的时候,删除或者查询所有数据 ...
  */
-abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<PARAM>,
+abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService<PARAM>,
     ApplicationContextAware,
     DisposableBean {
 
@@ -65,6 +66,9 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<
      * 具体可用的参数class 表现(也就是接口),因为最终的query转换交给 实际支持子类的queryConverter ..
      */
     private val paramClass: Class<PARAM>
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
 
     init {
 
@@ -100,13 +104,6 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<
             )
         }
 
-        // 这是默认情况,这样,能够通过java bean 赋值的方式进行转换 ..
-        if(entityConverters.getConverters().isEmpty()) {
-            entityConverters.noSafeAddConverters(BasedParamFreeEntityConverter(paramClass,entityClass));
-        }
-
-
-
     }
 
 
@@ -140,7 +137,6 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<
     }
 
 
-    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
 
     override fun addOperation(context: InputContext<PARAM>): CrudResult {
@@ -335,6 +331,14 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<
             queryForListConverters,
             this.javaClass.simpleName + "queryForListConverters"
         );
+
+        // 这是默认情况,这样,能够通过java bean 赋值的方式进行转换 ..
+        if (entityConverters.getConverters().isEmpty()) {
+            entityConverters.noSafeAddConverters(BasedParamFreeEntityConverter(paramClass, entityClass));
+        }
+        logger.info("${this.javaClass.name} added queryConverters is {}",queryConverters.getConverters())
+        logger.info("${this.javaClass.name} added queryForListConverters is {}",queryForListConverters.getConverters())
+        logger.info("${this.javaClass.name} added entityConverters is {}", entityConverters.getConverters());
     }
 
     override fun destroy() {
@@ -352,7 +356,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>: CrudService<
     }
 
     // 子类可以覆盖 ..
-    override  fun getParamClass(): Class<out Param> {
+    override fun getParamClass(): Class<out Param> {
         return paramClass
     }
 }
