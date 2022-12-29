@@ -8,7 +8,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.Abs
  * @time 14:12
  * @Description 直接给出id ...
  */
-class JpaIdQuery<ID : Any>(id: ID) : AbstractIdQuery<ID, JpaQueryInfo<ID>>(id, id.javaClass) {
+class JpaIdQuery<ID : Any>(id: ID) : AbstractIdQuery<ID, JpaQueryInfo<ID>>(id, id.javaClass),JpaQuery<ID> {
     override fun getQueryInfo(): JpaQueryInfo<ID> {
         return JpaQueryInfo(getId())
     }

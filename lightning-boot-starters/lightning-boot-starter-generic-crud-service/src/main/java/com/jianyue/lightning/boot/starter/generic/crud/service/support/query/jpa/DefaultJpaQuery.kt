@@ -7,7 +7,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.En
  * @time 14:34
  * @Description 基于entity 实现通用查询
  */
-class DefaultJpaQuery(private val jpaQueryInfo: JpaQueryInfo<Entity>) : JpaQuery<Entity> {
+class DefaultJpaQuery(private val jpaQueryInfo: JpaQueryInfo<Entity>) : JpaEntityQuery<Entity> {
     override fun getQueryInfo(): JpaQueryInfo<Entity> {
         return jpaQueryInfo;
     }

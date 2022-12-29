@@ -156,6 +156,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
         }
 
         getDbTemplate().add(choiceEntityConverterAndInvoke(context).asNativeObject<Entity>().apply {
+            logger.info("add operation invoke save fill !!!")
             // 回调
             saveFill();
         })
@@ -215,6 +216,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
 
         // 批量,这里按道理来说,我们应该判断的,但是也可以省略掉 ..
         // 目前 mongo 我们并没有配置唯一性索引,所以如果出错,也可以交给数据库抛出异常,集体出错
+        logger.info("add operation invoke batch save fill !!!")
         getDbTemplate().addList(choiceEntityForListConverterAndInvoke(context).onEach { it.saveFill() })
         return CrudResult.success()
     }

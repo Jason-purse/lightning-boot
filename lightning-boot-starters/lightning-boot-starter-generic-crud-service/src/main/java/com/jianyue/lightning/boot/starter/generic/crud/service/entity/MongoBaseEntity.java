@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 
 @Data
 @NoArgsConstructor
-public abstract class MongoBaseEntity<ID> extends BaseEntity implements Entity, IdSupport<ID> {
+public abstract class MongoBaseEntity<ID> extends MongoEntity implements Entity, IdSupport<ID> {
 
     @Id
     private ID id;

@@ -3,17 +3,21 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.support.db
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.IDQuerySupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.ByIdSpecification
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaQuery
+import com.jianyue.lightning.boot.starter.util.isNotNull
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObject
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.domain.Example
 import org.springframework.data.jpa.repository.JpaContext
+import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.Assert
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 
@@ -27,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap
 open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
 
     private val emCache = ConcurrentHashMap<Class<*>, JpaRepositoryImplementation<*, *>>()
+
+    private val entityInfoCache = ConcurrentHashMap<Class<*>, JpaEntityInformation<*, *>>()
 
     private val idCache = ConcurrentHashMap<Class<*>, Class<*>>()
 
@@ -43,6 +49,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
 
             // id 类型映射
             idCache[clazz] = entityInformation.idType;
+            entityInfoCache[clazz] = entityInformation
             // id 类型不重要
             val repository: SimpleJpaRepository<T, Any> =
                 SimpleJpaRepository<T, Any>(entityInformation, entityManager)
@@ -62,19 +69,27 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
 
     @Transactional
     override fun <T : Entity> delete(query: QuerySupport, entityClass: Class<T>) {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        if (query is IDQuerySupport) {
+            return deleteById(query, entityClass)
+        }
         getRepository(entityClass).delete(query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery())
     }
 
     @Transactional
     override fun <T : Entity> deleteById(query: IDQuerySupport, entityClass: Class<T>) {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         val idQuery = query.asNativeObject<JpaIdQuery<*>>()
-        val idType = idCache[entityClass]
-        // 强制判断 ..
-        Assert.isTrue(idType == idQuery.getIdClass(), "id type must be equals !!!")
-        getRepository(entityClass).deleteById(idQuery.getQueryInfo())
+        getRepository(entityClass).let {
+            val idType = idCache[entityClass]
+            // 强制判断 ..
+            Assert.isTrue(idType == idQuery.getIdClass(), "id type must be equals !!!")
+            it.deleteById(idQuery.getQueryInfo().getNativeQuery())
+        }
     }
 
     override fun <T : Entity> selectById(query: IDQuerySupport, entityClass: Class<T>): T? {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         val idQuery = query.asNativeObject<JpaIdQuery<*>>()
         // 强制判断 ..
         return getRepository(entityClass).let {
@@ -85,6 +100,16 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     override fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T> {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        when (query) {
+            is IDQuerySupport -> selectById(query, entityClass).let {
+                if (it.isNotNull()) {
+                    listOf(it!!)
+                } else {
+                    Collections.emptyList()
+                }
+            }
+        }
         return getRepository(entityClass).findAll(
             Example.of(
                 query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
@@ -93,24 +118,43 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     override fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T {
-        return getRepository(entityClass).findOne(
-            Example.of(
-                query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        return when (query) {
+            is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
+            else -> getRepository(entityClass).findOne(
+                Example.of(
+                    query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+                )
             )
-        ).orElseThrow {
+        }.orElseThrow {
             IllegalArgumentException("can't find first by query criteria: $query")
         }
+
     }
 
     override fun <T : Entity> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T? {
-        return getRepository(entityClass).findOne(
-            Example.of(
-                query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        return when (query) {
+            is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
+            else -> getRepository(entityClass).findOne(
+                Example.of(
+                    query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+                )
             )
-        ).orElse(null)
+        }.orElse(null)
     }
 
     override fun <T : Entity> countBy(query: QuerySupport, entityClass: Class<T>): Long {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        if (query is IDQuerySupport) {
+            @Suppress("UNCHECKED_CAST")
+            return getRepository(entityClass).count(
+                ByIdSpecification(
+                    entityInfoCache[entityClass] as JpaEntityInformation<T, *>,
+                    query.asNativeObject<JpaIdQuery<*>>().getQueryInfo().getNativeQuery()
+                )
+            )
+        }
         return getRepository(entityClass).count(
             Example.of(
                 query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()

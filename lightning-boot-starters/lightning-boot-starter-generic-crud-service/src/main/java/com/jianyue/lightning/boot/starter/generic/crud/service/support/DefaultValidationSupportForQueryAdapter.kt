@@ -1,7 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.entity.IdSupport
-import com.jianyue.lightning.boot.starter.generic.crud.service.query.QueryAssist
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery
@@ -30,16 +29,16 @@ interface DefaultValidationSupportForQueryAdapter<SOURCE : IdSupport<*>> :
 interface DefaultMongoValidationSupportForQueryAdapter<SOURCE : IdSupport<*>>: DefaultValidationSupportForQueryAdapter<SOURCE> {
 
     override fun selectByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return MongoIdQuery(s)
+        return MongoIdQuery(s.id)
     }
 
 
     override fun deleteByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return MongoIdQuery(s)
+        return MongoIdQuery(s.id)
     }
 
     override fun updateGroupHandle(s: SOURCE): QuerySupport {
-        return MongoIdQuery(s)
+        return MongoIdQuery(s.id)
     }
 }
 
@@ -48,15 +47,15 @@ interface DefaultMongoValidationSupportForQueryAdapter<SOURCE : IdSupport<*>>: D
  */
 interface DefaultJpaValidationSupportForQueryAdapter<SOURCE : IdSupport<*>>: DefaultValidationSupportForQueryAdapter<SOURCE> {
     override fun selectByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return JpaIdQuery(s)
+        return JpaIdQuery(s.id)
     }
 
 
     override fun deleteByIdGroupHandle(s: SOURCE): QuerySupport? {
-        return JpaIdQuery(s)
+        return JpaIdQuery(s.id)
     }
 
     override fun updateGroupHandle(s: SOURCE): QuerySupport {
-        return JpaIdQuery(s)
+        return JpaIdQuery(s.id)
     }
 }
