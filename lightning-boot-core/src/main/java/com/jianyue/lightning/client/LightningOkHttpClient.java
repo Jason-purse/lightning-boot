@@ -112,7 +112,7 @@ public class LightningOkHttpClient {
                 .build();
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
-        final Result<T> data = JsonUtil.fromJson(responseBody, JsonUtil.createJavaType(Result.getDefaultImplementClass(), targetClazz));
+        final Result<T> data = JsonUtil.getDefaultJsonUtil().fromJson(responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(), targetClazz));
         // 都看作 success
         if (data.getCode() >= 200 && data.getCode() < 300) {
             return data.getResult();
@@ -130,8 +130,8 @@ public class LightningOkHttpClient {
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
         Result<T> result =
-                JsonUtil.fromJson(
-                        responseBody, JsonUtil.createJavaType(Result.getDefaultImplementClass(),
+                JsonUtil.getDefaultJsonUtil().fromJson(
+                        responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
                                 clazz)
                 );
 
@@ -152,13 +152,13 @@ public class LightningOkHttpClient {
         MediaType json = MediaType.parse("application/json; charset=utf-8");
         Request request = new Request.Builder()
                 .url(urlBuilder.build())
-                .post(RequestBody.create( JsonUtil.asJSON(o),json))
+                .post(RequestBody.create( JsonUtil.getDefaultJsonUtil().asJSON(o),json))
                 .build();
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
         Result<T> result =
-                JsonUtil.fromJson(
-                        responseBody, JsonUtil.createJavaType(Result.getDefaultImplementClass(),
+                JsonUtil.getDefaultJsonUtil().fromJson(
+                        responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
                                 clazz)
                 );
 
@@ -192,7 +192,7 @@ public class LightningOkHttpClient {
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
         // 有可能就是没有
-        return JsonUtil.fromJson(responseBody, Map.class);
+        return JsonUtil.getDefaultJsonUtil().fromJson(responseBody, Map.class);
     }
 
     public <T> T getDataForOtherGet(String param, String path, Map<String, String> headers, TypeReference<T> typeReference) {
@@ -211,7 +211,7 @@ public class LightningOkHttpClient {
         String responseBody = lightningResponse.getBody();
 
         // 有可能就是没有
-        return JsonUtil.fromJson(responseBody, typeReference);
+        return JsonUtil.getDefaultJsonUtil().fromJson(responseBody, typeReference);
     }
 
     /**
@@ -224,7 +224,7 @@ public class LightningOkHttpClient {
     public <T> T getDataForOtherGet(String param, String path, Map<String, String> headers, String key, com.fasterxml.jackson.core.type.TypeReference<T> typeReference) {
         Map<?, ?> resultForGetThird = this.getDataForOtherGet(param, path, headers);
         Object o = resultForGetThird.get(key);
-        return JsonUtil.convertTo(o, typeReference);
+        return JsonUtil.getDefaultJsonUtil().convertTo(o, typeReference);
     }
 
 
@@ -264,10 +264,10 @@ public class LightningOkHttpClient {
 
         Map<?, ?> map = getDataForOtherPost(o, path, headers);
         if (ObjectUtils.isEmpty(key)) {
-            return JsonUtil.convertTo(map, typeReference);
+            return JsonUtil.getDefaultJsonUtil().convertTo(map, typeReference);
         }
         Object data = map.get(key);
-        return JsonUtil.convertTo(data, typeReference);
+        return JsonUtil.getDefaultJsonUtil().convertTo(data, typeReference);
     }
 
 
@@ -308,7 +308,7 @@ public class LightningOkHttpClient {
         Request request = builder.build();
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
-        return JsonUtil.fromJson(responseBody, Map.class);
+        return JsonUtil.getDefaultJsonUtil().fromJson(responseBody, Map.class);
     }
 
 
@@ -330,13 +330,13 @@ public class LightningOkHttpClient {
         MediaType json = MediaType.parse("application/json; charset=utf-8");
         Request.Builder builder = new Request.Builder()
                 .url(urlBuilder.build())
-                .post(RequestBody.create(json, JsonUtil.asJSON(o)));
+                .post(RequestBody.create(json, JsonUtil.getDefaultJsonUtil().asJSON(o)));
         if (ObjectUtils.isNotEmpty(headers)) {
             builder.headers(genHeaders(headers));
         }
         Request request = builder.build();
         LightningResponse lightningResponse = this.execute(request);
-        return JsonUtil.fromJson(lightningResponse.getBody(), Map.class);
+        return JsonUtil.getDefaultJsonUtil().fromJson(lightningResponse.getBody(), Map.class);
     }
 
 

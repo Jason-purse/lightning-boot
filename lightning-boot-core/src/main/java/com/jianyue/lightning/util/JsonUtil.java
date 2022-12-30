@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -34,58 +32,89 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * @author FLJ
  * @date 2021/11/15 12:39
  * @description json util
- *
+ * <p>
  * 安全的 json 工具类, 用于json 解析,会适当的抛出 DefaultApplicationException异常 ..
  */
 public class JsonUtil {
 
-    private JsonUtil() {
+    private final ObjectMapper objectMapper;
 
+    private JsonUtil() {
+        this.objectMapper = new ObjectMapper();
+        initialize();
     }
 
-    private final static ObjectMapper objectMapper = new ObjectMapper();
-
-    static {
+    private void initialize() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        // 根据毫秒时间读取 并反序列化instant
-        objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS,false);
-        // 至少保证getter方法的字段正确序列化出来
-        // 切记getter 需要注意形式
-        objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
+    }
+
+
+    private final static JsonUtil jsonUtil = JsonUtil.withDefaultDateOfChina();
+
+    public static JsonUtil getDefaultJsonUtil() {
+        return jsonUtil;
+    }
+
+    public void registerMode(Module module) {
+        objectMapper.registerModule(module);
+    }
+
+    public void configureObjectMapper(Consumer<ObjectMapper> consumer) {
+        consumer.accept(objectMapper);
+    }
+
+    public static JsonUtil of() {
+        return new JsonUtil();
+    }
+
+
+    private static JsonUtil withDefaultDateOfChina() {
+
+        JsonUtil jsonUtil = new JsonUtil();
+        jsonUtil.configureObjectMapper(objectMapper -> {
+            // 根据毫秒时间读取 并反序列化instant
+            objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+            objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+            objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
+            // 至少保证getter方法的字段正确序列化出来
+            // 切记getter 需要注意形式
+            objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.ANY);
+        });
 
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         simpleModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         simpleModule.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        simpleModule.addSerializer(Instant.class,InstantSerializer.INSTANCE);
+        simpleModule.addSerializer(Instant.class, InstantSerializer.INSTANCE);
 
         simpleModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         simpleModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         simpleModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
         simpleModule.addDeserializer(Instant.class, InstantDeserializer.INSTANT);
-        objectMapper.registerModule(simpleModule);
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        jsonUtil.registerMode(simpleModule);
 
+        return jsonUtil;
     }
+
 
     /**
      * 从输入流中获取一个map
      *
      * @param stream stream data
      * @return Map<?, ?>
-     *
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static  Map<String, ?> asMap(@Nullable InputStream stream) {
+    public Map<String, ?> asMap(@Nullable InputStream stream) {
         if (stream != null) {
             try {
                 return objectMapper.readValue(stream, new TypeReference<>() {
@@ -105,10 +134,10 @@ public class JsonUtil {
      * @param clazz   clazz
      * @param <T>     type
      * @return instance
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T fromRequest(HttpServletRequest request, Class<T> clazz) {
+    public <T> T fromRequest(HttpServletRequest request, Class<T> clazz) {
         if (request != null) {
             Map<String, String[]> parameterMap = request.getParameterMap();
             if (ObjectUtils.isNotEmpty(parameterMap)) {
@@ -131,11 +160,10 @@ public class JsonUtil {
      * @param clazz  target
      * @param <T>    class type
      * @return instance
-     *
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T convertTo(@Nullable Object object,  @Nullable Class<T> clazz) {
+    public <T> T convertTo(@Nullable Object object, @Nullable Class<T> clazz) {
 
         if (clazz != null && object != null) {
             try {
@@ -150,11 +178,12 @@ public class JsonUtil {
 
     /**
      * 从Json 进行读取
+     *
      * @return instance
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T fromJson(@Nullable String json, @Nullable Class<T> clazz) {
+    public <T> T fromJson(@Nullable String json, @Nullable Class<T> clazz) {
         if (clazz != null && json != null) {
             try {
                 return objectMapper.readValue(json, clazz);
@@ -167,13 +196,13 @@ public class JsonUtil {
 
     /**
      * 从inputStream 进行读取
-     * @return instance
      *
-     *  @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @return instance
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T fromJson(@Nullable InputStream stream, @Nullable Class<T> clazz) {
-        if(stream != null && clazz != null) {
+    public <T> T fromJson(@Nullable InputStream stream, @Nullable Class<T> clazz) {
+        if (stream != null && clazz != null) {
             try {
                 return objectMapper.readValue(stream, clazz);
             } catch (Exception e) {
@@ -185,52 +214,55 @@ public class JsonUtil {
 
     /**
      * 同上
+     *
      * @return instance
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T fromJson(@Nullable String json, @Nullable TypeReference<T> typeReference) {
-       if(json != null && typeReference != null) {
-           try {
-               return objectMapper.readValue(json, typeReference);
-           } catch (Exception e) {
-               throw DefaultApplicationException.of(e.getMessage(), e);
-           }
-       }
+    public <T> T fromJson(@Nullable String json, @Nullable TypeReference<T> typeReference) {
+        if (json != null && typeReference != null) {
+            try {
+                return objectMapper.readValue(json, typeReference);
+            } catch (Exception e) {
+                throw DefaultApplicationException.of(e.getMessage(), e);
+            }
+        }
         throw DefaultApplicationException.of("can't convert to instance of typeReference, json or typeReference must not be null !!!");
     }
 
     /**
      * 同上
+     *
      * @return instance
-     * @throws  DefaultApplicationException 解析失败 / 或者空参数问题
+     * @throws DefaultApplicationException 解析失败 / 或者空参数问题
      */
     @NotNull
-    public static <T> T fromJson(@Nullable InputStream stream, @Nullable TypeReference<T> clazzRef) {
-        if(stream != null && clazzRef != null) {
+    public <T> T fromJson(@Nullable InputStream stream, @Nullable TypeReference<T> clazzRef) {
+        if (stream != null && clazzRef != null) {
             try {
                 return objectMapper.readValue(stream, clazzRef);
             } catch (Exception e) {
-                throw DefaultApplicationException.of(e.getMessage(),e);
+                throw DefaultApplicationException.of(e.getMessage(), e);
             }
         }
         throw DefaultApplicationException.of("can't convert to instance of target clazzRef, stream or clazzRef must not be null !!!");
     }
 
     @NotNull
-    public static <T> T fromJson(@NotNull String value, @NotNull JavaType javaType) {
+    public <T> T fromJson(@NotNull String value, @NotNull JavaType javaType) {
         try {
             return objectMapper.readValue(value, javaType);
         } catch (Exception e) {
-            throw DefaultApplicationException.of(e.getMessage(),e);
+            throw DefaultApplicationException.of(e.getMessage(), e);
         }
     }
+
 
     /**
      * 创建一个参数化类型
      */
     @NotNull
-    public static <R, T> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull Class<T> parameterClass) {
+    public <R, T> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull Class<T> parameterClass) {
         return objectMapper.getTypeFactory().constructParametricType(rawType, parameterClass);
     }
 
@@ -241,8 +273,27 @@ public class JsonUtil {
      * @param parameterType 参数化type
      */
     @NotNull
-    public static <R, T> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull JavaType parameterType) {
+    public <R> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull JavaType parameterType) {
         return objectMapper.getTypeFactory().constructParametricType(rawType, parameterType);
+    }
+
+    /**
+     * 创建一个参数化类型 ..
+     *
+     * @param rawType        rawType
+     * @param parameterTypes 参数化types
+     */
+    @NotNull
+    public <R> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull JavaType... parameterTypes) {
+        return objectMapper.getTypeFactory().constructParametricType(rawType, parameterTypes);
+    }
+
+    /**
+     * 创建一个参数化类型
+     */
+    @NotNull
+    public <R> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull Class<?>... parameterClasses) {
+        return objectMapper.getTypeFactory().constructParametricType(rawType, parameterClasses);
     }
 
 
@@ -255,12 +306,12 @@ public class JsonUtil {
      * @return instance or null
      */
     @NotNull
-    public static <T> T convertTo(@Nullable Object object, @Nullable TypeReference<T> typeReference) {
+    public <T> T convertTo(@Nullable Object object, @Nullable TypeReference<T> typeReference) {
         if (typeReference != null && object != null) {
             try {
                 return objectMapper.convertValue(object, typeReference);
             } catch (Exception e) {
-                throw DefaultApplicationException.of(e.getMessage(),e);
+                throw DefaultApplicationException.of(e.getMessage(), e);
             }
         }
         throw DefaultApplicationException.of("can't convert to instance of typeReference, object or typeReference must not be null !!!");
@@ -273,12 +324,12 @@ public class JsonUtil {
      * @return object json
      */
     @NotNull
-    public static String asJSON(@Nullable  Object object) {
+    public String asJSON(@Nullable Object object) {
         if (object != null) {
             try {
                 return objectMapper.writeValueAsString(object);
             } catch (Exception e) {
-                throw DefaultApplicationException.of(e.getMessage(),e);
+                throw DefaultApplicationException.of(e.getMessage(), e);
             }
         }
         throw DefaultApplicationException.of("can't write json , object must not be null !!!");
