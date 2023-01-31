@@ -25,7 +25,7 @@
         <joda.time.version>2.10</joda.time.version>
         <spring.boot.version>2.7.5</spring.boot.version>
         <spring.cloud.version>2021.0.5</spring.cloud.version>
-        <kotlin.version>1.6.20</kotlin.version>
+        <kotlin.version>1.6.21</kotlin.version>
         <lombok.version>1.18.22</lombok.version>
         <springside.util.version>5.0.0-RC1</springside.util.version>
         <javax.mail.version>1.4.7</javax.mail.version>

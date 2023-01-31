@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -64,12 +65,24 @@ public class JsonUtil {
         return jsonUtil;
     }
 
-    public void registerMode(Module module) {
+    public JsonUtil registerModule(Module module) {
         objectMapper.registerModule(module);
+        return this;
     }
 
-    public void configureObjectMapper(Consumer<ObjectMapper> consumer) {
+    public JsonUtil registerModules(Module... modules) {
+        objectMapper.registerModules(modules);
+        return this;
+    }
+
+    public JsonUtil registerModules(Iterable<Module> modules) {
+        objectMapper.registerModules(modules);
+        return this;
+    }
+
+    public JsonUtil configureObjectMapper(Consumer<ObjectMapper> consumer) {
         consumer.accept(objectMapper);
+        return this;
     }
 
     public static JsonUtil of() {
@@ -100,7 +113,7 @@ public class JsonUtil {
         simpleModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         simpleModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
         simpleModule.addDeserializer(Instant.class, InstantDeserializer.INSTANT);
-        jsonUtil.registerMode(simpleModule);
+        jsonUtil.registerModule(simpleModule);
 
         return jsonUtil;
     }
