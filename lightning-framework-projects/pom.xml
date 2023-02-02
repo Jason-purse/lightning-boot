@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>lightning-boot</artifactId>
+        <groupId>com.jianyue</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>lightning-framework-projects</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>lightning-framework-redis</module>
+        <module>lightning-framework-web</module>
+        <module>lightning-framework-feign</module>
+        <module>lightning-framework-design-patterns</module>
+        <module>lightning-framework-xxjob</module>
+        <module>lightning-framework-mail</module>
+        <module>lightning-framework-generic-crud-abstract</module>
+    </modules>
+
+
+</project>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>lightning-boot</artifactId>
+        <groupId>com.jianyue</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>lightning-boot-starters</artifactId>
+
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>lightning-boot-starter-utils</module>
+        <module>lightning-boot-starter-web</module>
+        <module>lightning-boot-starter-feign</module>
+        <module>lightning-boot-starter-design-patterns</module>
+        <module>lightning-boot-starter-daos</module>
+        <module>lightning-boot-starter</module>
+        <module>lightning-boot-starter-redis</module>
+        <module>lightning-boot-starter-xxljob</module>
+        <module>lightning-boot-starter-mail</module>
+        <module>lightning-boot-starter-mqtt</module>
+        <module>lightning-boot-starter-swagger</module>
+        <module>lightning-boot-starter-system-log</module>
+        <module>lightning-boot-starter-generic-crud-service</module>
+    </modules>
+
+</project>
