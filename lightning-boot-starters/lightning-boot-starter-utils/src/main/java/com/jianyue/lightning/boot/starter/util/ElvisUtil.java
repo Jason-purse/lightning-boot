@@ -82,6 +82,17 @@ public class ElvisUtil {
         return null;
     }
 
+
+
+    public static <S> S getOrDefault(S source,Supplier<S> targetSupplier) {
+        return Objects.requireNonNullElseGet(source,targetSupplier);
+    }
+
+    public static <S> S getOrDefault(S source,S other) {
+        return Objects.requireNonNullElse(source,other);
+    }
+
+
     public static Integer intElvis(Integer value,Integer defaultValue) {
         return value == null ? defaultValue : value;
     }

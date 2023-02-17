@@ -98,13 +98,13 @@ public class SwitchUtil {
         };
     }
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Function<T,R> trFunction, Supplier<R> supplier) {
-        return switchMapFunc(predicate,trFunction,t -> supplier.get());
+    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Function<T,R> trFunction, Supplier<R> fafunction) {
+        return switchMapFunc(predicate,trFunction,t -> fafunction.get());
     }
 
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Supplier<R> trFunction, Supplier<R> supplier) {
-        return switchMapFunc(predicate,it -> trFunction.get(),t -> supplier.get());
+    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Supplier<R> trFunction, Supplier<R> fafunction) {
+        return switchMapFunc(predicate,it -> trFunction.get(),t -> fafunction.get());
     }
 
     // 根据条件map

@@ -87,6 +87,11 @@ public class OptionalFlux<S> {
     }
 
 
+    public boolean isPresent() {
+        return this.value.isPresent();
+    }
+
+
     /**
      * 映射逻辑,通过一个存在的值Map另一个值,或者产生一个!
      *
@@ -128,17 +133,16 @@ public class OptionalFlux<S> {
      * if - else 逻辑
      *
      * @param supplier 不存在的映射
-     * @param <T>      泛型类型
      * @return 返回OptionalFlux
      */
-    public <T> OptionalFlux<S> orElse(Supplier<T> supplier) {
+    public OptionalFlux<S> orElse(Supplier<S> supplier) {
         if (this.value.isEmpty()) {
             this.target = supplier.get();
         }
         return this;
     }
 
-    public <T> OptionalFlux<S> orElse(T target) {
+    public OptionalFlux<S> orElse(S target) {
         if (this.value.isEmpty()) {
             this.target = target;
         }
@@ -204,6 +208,7 @@ public class OptionalFlux<S> {
      * @return result
      * @throws ClassCastException class can't converted to T
      */
+    @Deprecated
     public <T> T getResult(Class<T> clazz) {
         if (this.target == null) {
             return null;
@@ -219,8 +224,9 @@ public class OptionalFlux<S> {
      * @throws ClassCastException class can't converted to T
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public <T> List<T> getResultForList(Class<T> eleType) {
-        return ((List<T>) getResult());
+        return getResult();
     }
 
     @Nullable
