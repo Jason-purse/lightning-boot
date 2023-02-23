@@ -123,7 +123,6 @@ public class MqttListenerConfiguration implements DisposableBean {
     @Bean(name = "$$$$$$$$internalMessageHandler$$$$$$$$")
     // ServiceActivator注解表明：当前方法用于处理MQTT消息，inputChannel参数指定了用于消费消息的channel。
     @ConditionalOnBean(name = "mqttInputChannel", value = MessageChannel.class) // 保证在任何用户的
-    @ConditionalOnMissingBean(value = MessageHandler.class)
     @ServiceActivator(inputChannel = "mqttInputChannel")
     @Primary
     public MessageHandler handler() {
