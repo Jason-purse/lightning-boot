@@ -58,6 +58,7 @@ public class MqttProperties {
 
     @Data
     public static class InBoundProperties {
+
         /**
          * 客户端id
          */

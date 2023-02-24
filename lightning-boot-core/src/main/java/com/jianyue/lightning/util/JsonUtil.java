@@ -90,7 +90,7 @@ public class JsonUtil {
     }
 
 
-    private static JsonUtil withDefaultDateOfChina() {
+    public static JsonUtil withDefaultDateOfChina() {
 
         JsonUtil jsonUtil = new JsonUtil();
         jsonUtil.configureObjectMapper(objectMapper -> {

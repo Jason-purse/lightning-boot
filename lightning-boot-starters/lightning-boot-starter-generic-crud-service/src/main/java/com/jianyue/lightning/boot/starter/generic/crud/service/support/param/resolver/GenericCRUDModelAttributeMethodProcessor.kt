@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.config
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.AbstractGenericController
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport

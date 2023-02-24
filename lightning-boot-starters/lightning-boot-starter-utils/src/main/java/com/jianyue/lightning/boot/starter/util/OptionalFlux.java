@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -67,6 +68,10 @@ public class OptionalFlux<S> {
         return of(Optional.ofNullable(value));
     }
 
+    public static <S> OptionalFlux<S> empty() {
+        return OptionalFlux.of(Optional.empty());
+    }
+
     public Optional<S> getValue() {
         return this.value;
     }
@@ -84,6 +89,10 @@ public class OptionalFlux<S> {
     public OptionalFlux<S> consume(Consumer<S> consumer) {
         this.value.ifPresent(consumer);
         return this;
+    }
+
+    public OptionalFlux<S> combine(OptionalFlux<S> other, BiFunction<S,S,S> handler) {
+        return value.map(one -> other.map(two -> handler.apply(one,two))).orElse(other);
     }
 
 
@@ -137,14 +146,14 @@ public class OptionalFlux<S> {
      */
     public OptionalFlux<S> orElse(Supplier<S> supplier) {
         if (this.value.isEmpty()) {
-            this.target = supplier.get();
+            return OptionalFlux.of(supplier.get());
         }
         return this;
     }
 
     public OptionalFlux<S> orElse(S target) {
         if (this.value.isEmpty()) {
-            this.target = target;
+            return OptionalFlux.of(target);
         }
         return this;
     }

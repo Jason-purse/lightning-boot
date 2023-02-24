@@ -1,11 +1,11 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.JpaDbTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.MongoDbTemplate
-import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.FactoryBasedHandlerFactoryConfigurer
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.FactoryBasedHandlerMethodArgumentResolver
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.HandlerMethodArgumentResolverHandlerProvider
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -13,49 +13,56 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpInputMessage
 import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import java.lang.reflect.Type
 
+/**
+ * 主要负责通用crud 的{@link Param}的实例化方式 ...
+ *
+ * 当然也支持其他基于工厂策略的抽象参数实例化 ... 不限于 Param 参数 ...
+ *
+ * 主要使用形式就是,接口上是一个抽象类,需要自定义工厂实现,来进行具体的参数构造 ....
+ *
+ * 要支持其他类型的工厂 参数解析,通过实现 FactoryBasedHandlerFactoryConfigurer 进行自定义扩展 ..
+ * 同样可以修改已有内置的对通用crud服务支持的 JsonUtil,去实现特定的类型反序列化或者序列化支持 ...
+ */
 @ConditionalOnClass(WebMvcConfigurer::class)
-@Import(MongoDbTemplate::class, JpaDbTemplate::class, AopConfig::class)
+@Import(MongoDbTemplate::class, JpaDbTemplate::class)
 @AutoConfigureAfter(value = [MongoDataAutoConfiguration::class, JpaRepositoriesAutoConfiguration::class])
 class CrudServiceAutoConfiguration : WebMvcConfigurer {
+    private val simpleHandlerMethodArgumentResolverHandler =
+        SimpleForGenericCrudHandlerMethodArgumentResolverHandler()
+
+    private val factoryBasedHandlerMethodArgumentResolver: FactoryBasedHandlerMethodArgumentResolver =
+        FactoryBasedHandlerMethodArgumentResolver().apply {
+            // 增加默认的处理器提供器 ..
+            addArgumentResolverHandlers(
+                // 针对 Param java类的处理 ...
+                HandlerMethodArgumentResolverHandlerProvider(
+                    Param::class.java,
+                    simpleHandlerMethodArgumentResolverHandler,
+                    simpleHandlerMethodArgumentResolverHandler.predicate
+                )
+            )
+
+        }
+
+    @Autowired(required = false)
+    fun setHandlerProviders(vararg configurers: FactoryBasedHandlerFactoryConfigurer) {
+        for (configurer in configurers) {
+            configurer.configMethodArgumentResolver(factoryBasedHandlerMethodArgumentResolver)
+            configurer.configJsonUtil(simpleHandlerMethodArgumentResolverHandler.jsonUtil)
+        }
+    }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        // 为了参数解析
-        resolvers.add(GenericCRUDModelAttributeMethodProcessor());
+        resolvers.add(factoryBasedHandlerMethodArgumentResolver);
     }
 
     override fun configureMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
-
-        val messageConverter = converters.first { it is MappingJackson2HttpMessageConverter } as MappingJackson2HttpMessageConverter
         // 继承 mvc jackson 的配置选项
         // JacksonHttpMessageConvertersConfiguration
-        converters.add(1, object : MappingJackson2HttpMessageConverter(messageConverter.objectMapper) {
-            override fun getJavaType(type: Type, contextClass: Class<*>?): JavaType {
-                val paramClass = ControllerSupport.paramClassState.get()
-                if (type is Class<*> && Param::class.java.isAssignableFrom(type)) {
-                    if (paramClass != null) {
-                        val typeFactory = objectMapper.typeFactory
-                        return typeFactory.constructType(paramClass.first)
-                    }
-                }
-                // 否则默认处理 ..
-                return super.getJavaType(type, contextClass)
-            }
-
-            override fun read(type: Type, contextClass: Class<*>?, inputMessage: HttpInputMessage): Any {
-                val paramClassTuple = ControllerSupport.paramClassState.get()
-                return super.read(type, contextClass, inputMessage).apply {
-                    @Suppress("UNCHECKED_CAST")
-                    ControllerSupport.paramClassState.set(paramClassTuple?.second as? Tuple<Class<*>, Any>)
-                }
-
-            }
-        })
+        converters.add(1, simpleHandlerMethodArgumentResolverHandler.messageConverter)
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.lang.annotation.*;
 
-@Target(ElementType.PARAMETER)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Validated(ADD.class)
 public @interface AddGroup {

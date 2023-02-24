@@ -29,41 +29,53 @@ abstract class AbstractGenericController<PARAM : Param,Service: CrudService<PARA
 
     @GetMapping("list")
     @ValidationAnnotation
-    open fun selectOperations(@SelectListGroup param: PARAM): CrudResult {
+    @SelectListGroup
+    open fun selectOperations(param: PARAM): CrudResult {
+        ValidationSupport.setSelectListGroup()
         return getService().selectOperation(InputContext.of(param))
     }
 
 
     @GetMapping
     @ValidationAnnotation
-    open fun selectOperationById(@SelectByIdGroup param: PARAM): CrudResult {
+    @SelectByIdGroup
+    open fun selectOperationById(param: PARAM): CrudResult {
+        ValidationSupport.setSelectByIdGroup()
         return getService().selectOperationById(InputContext.of(param))
     }
 
     @PostMapping
     @ValidationAnnotation
-    open fun addOperation(@AddGroup @RequestBody param: Param): CrudResult {
+    @AddGroup
+    open fun addOperation(@RequestBody param: Param): CrudResult {
+        ValidationSupport.setAddGroup()
         @Suppress("UNCHECKED_CAST")
         return getService().addOperation(InputContext.of(param as PARAM))
     }
 
     @PutMapping
     @ValidationAnnotation
-    open fun updateOperation(@UpdateGroup @RequestBody param: Param): CrudResult {
+    @UpdateGroup
+    open fun updateOperation(@RequestBody param: Param): CrudResult {
+        ValidationSupport.setUpdateGroup()
         @Suppress("UNCHECKED_CAST")
         return getService().saveOperation(InputContext.of(param as PARAM))
     }
 
     @DeleteMapping
     @ValidationAnnotation
-    open fun deleteOperationById(@DeleteByIdGroup param: PARAM): CrudResult {
+    @DeleteByIdGroup
+    open fun deleteOperationById(param: PARAM): CrudResult {
+        ValidationSupport.setDeleteByIdGroup()
         return getService().deleteOperationById(InputContext.of(param))
     }
 
 
     @ValidationAnnotation
     @DeleteMapping("criteria")
-    open fun deleteOperation(@DeleteGroup param: PARAM): CrudResult {
+    @DeleteGroup
+    open fun deleteOperation(param: PARAM): CrudResult {
+        ValidationSupport.setDeleteGroup()
         return getService().deleteOperation(InputContext.of(param))
     }
 
