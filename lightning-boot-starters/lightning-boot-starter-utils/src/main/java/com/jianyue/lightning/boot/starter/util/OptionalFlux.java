@@ -92,7 +92,10 @@ public class OptionalFlux<S> {
     }
 
     public OptionalFlux<S> combine(OptionalFlux<S> other, BiFunction<S,S,S> handler) {
-        return value.map(one -> other.map(two -> handler.apply(one,two))).orElse(other);
+        if(other.isPresent() && this.isPresent()) {
+            return OptionalFlux.of(handler.apply(getResult(),other.getResult()));
+        }
+        return this.isPresent() ? this : other;
     }
 
 
@@ -154,6 +157,13 @@ public class OptionalFlux<S> {
     public OptionalFlux<S> orElse(S target) {
         if (this.value.isEmpty()) {
             return OptionalFlux.of(target);
+        }
+        return this;
+    }
+
+    public OptionalFlux<S> orElse(OptionalFlux<S> target){
+        if (!isPresent()) {
+            return target;
         }
         return this;
     }
