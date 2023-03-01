@@ -1,6 +1,6 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.validates
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.ThreadLocalSupport
+import com.jianyue.lightning.boot.starter.generic.crud.service.util.ThreadLocalSupport
 import org.springframework.util.Assert
 
 /**
@@ -20,6 +20,7 @@ interface ValidationSupport<S,T> {
 
 
     companion object {
+
         private val state = ThreadLocalSupport.of<Class<out Validation>>()
 
         private val additionalState = ThreadLocalSupport.of<Any?>()
@@ -57,6 +58,10 @@ interface ValidationSupport<S,T> {
 
         fun setSelectListGroup() {
             setValidationGroupAndReturnOld(SELECT_LIST::class.java)
+        }
+
+        fun selectOneGroup() {
+            setValidationGroupAndReturnOld(SELECT_ONE::class.java)
         }
 
         fun setSelectByIdGroup() {

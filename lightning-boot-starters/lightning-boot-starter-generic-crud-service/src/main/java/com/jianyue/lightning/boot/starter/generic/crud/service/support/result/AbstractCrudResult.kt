@@ -25,7 +25,7 @@ open class AbstractCrudResult(private val result: Any?, private val code: Int, p
     }
 
     override fun hasResults(): Boolean {
-        return hasResult() && result is Collection<*>
+        return hasResult() && result is Collection<*> && result.size > 0
     }
 
     override fun getCode(): Int {

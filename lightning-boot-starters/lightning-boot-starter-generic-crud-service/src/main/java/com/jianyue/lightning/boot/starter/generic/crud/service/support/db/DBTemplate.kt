@@ -27,6 +27,8 @@ interface DBTemplate {
 
     fun <T : Entity> selectById(query: IDQuerySupport, entityClass: Class<T>): T?
 
+    fun <T : Entity> selectOne(query: QuerySupport,entityClass: Class<T>): T?
+
     fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T>
 
     fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T

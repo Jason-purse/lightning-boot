@@ -13,7 +13,7 @@ interface BaseEntitySupport {
 /**
  * 转换为BaseEntity
  *
- * 没有做任何检查
+ * 没有做任何检查,可能会抛出异常 !!!
  */
 inline fun <reified T> BaseEntitySupport.convertBaseEntity(): T {
     return this as T;

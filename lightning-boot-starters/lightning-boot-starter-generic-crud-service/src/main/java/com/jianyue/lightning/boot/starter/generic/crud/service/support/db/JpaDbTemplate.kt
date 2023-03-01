@@ -99,6 +99,12 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         }
     }
 
+    override fun <T : Entity> selectOne(query: QuerySupport, entityClass: Class<T>): T? {
+        val list = this.selectByComplex(query, entityClass)
+        Assert.isTrue(list.isNotEmpty(), "need only one,but return many result !!!")
+        return list[0]
+    }
+
     override fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T> {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         when (query) {

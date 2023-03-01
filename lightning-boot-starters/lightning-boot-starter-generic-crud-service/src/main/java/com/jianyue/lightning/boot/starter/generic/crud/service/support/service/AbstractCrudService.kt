@@ -1,9 +1,9 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.service
 
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.AbstractConverterAdapter
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.BasedParamFreeEntityConverter
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.DefaultGenericConverterAdapter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.AbstractConverterAdapter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.BasedParamFreeEntityConverter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.DefaultGenericConverterAdapter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.EntityConverter
 import com.safone.order.service.model.order.verification.support.converters.QueryConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
 import java.lang.reflect.ParameterizedType
-import kotlin.math.log
 
 /**
  * @author FLJ
@@ -140,7 +139,6 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
 
 
     override fun addOperation(context: InputContext<PARAM>): CrudResult {
-
         choiceQueryConverterAndInvoke(context)?.let {
             if (it !is NoneQuery) {
                 val one = getDbTemplate().selectFirstOrNull(

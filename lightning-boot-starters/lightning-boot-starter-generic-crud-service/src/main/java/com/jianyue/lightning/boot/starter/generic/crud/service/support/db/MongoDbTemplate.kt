@@ -8,6 +8,7 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObj
 import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.util.Assert
 
 /**
  * @date 2022/12/8
@@ -56,6 +57,12 @@ class MongoDbTemplate(private val mongoTemplate: MongoTemplate) : DBTemplate {
         return query.asNativeObject<MongoQuery>().let {
             mongoTemplate.findOne(it.getQueryInfo().getNativeQuery(), entityClass)
         }
+    }
+
+    override fun <T : Entity> selectOne(query: QuerySupport, entityClass: Class<T>): T? {
+        val list = this.selectByComplex(query, entityClass)
+        Assert.isTrue(list.isNotEmpty(), "need only one ,but return many result !!!")
+        return list[0];
     }
 
     override fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T {

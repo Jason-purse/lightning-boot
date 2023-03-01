@@ -10,10 +10,11 @@ import com.safone.order.service.model.order.verification.support.result.Abstract
  * CRUD 结果提示
  **/
 interface CrudResult {
+
     /**
-     * 如果有结果
+     * 在java 环境中,不进行显式的类型强转 !!!
      */
-    fun getResult(): Any?
+    fun <T: Any?> getResult(): T
 
     /**
      * 判断是否有解决
@@ -38,11 +39,6 @@ interface CrudResult {
 
 
     companion object {
-
-        inline fun <reified T> CrudResult.getResultFor(): T {
-            return getResult() as T
-        }
-
 
 
         /**

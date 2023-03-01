@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -40,6 +40,7 @@ class ValidationAssist {
     static  {
         validationGroups.add(ADD.class);
         validationGroups.add(SELECT_LIST.class);
+        validationGroups.add(SELECT_ONE.class);
         validationGroups.add(SELECT_BY_ID.class);
         validationGroups.add(UPDATE.class);
         validationGroups.add(DELETE.class);

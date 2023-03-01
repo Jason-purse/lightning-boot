@@ -13,6 +13,7 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.DefaultAsSu
  * 屏蔽 Converter 泛型细节 ...
  *
  * 所有Converter 都应该通过实现Converter接口,而不是直接实现此接口 ..
+ *
  **/
 public interface ConverterSupport extends DefaultAsSupport<ConverterSupport> {
 

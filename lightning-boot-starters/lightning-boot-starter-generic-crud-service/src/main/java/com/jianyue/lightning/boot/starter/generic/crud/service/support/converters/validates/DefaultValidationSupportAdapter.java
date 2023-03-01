@@ -1,10 +1,14 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
 
 /**
  * @author FLJ
  * @date 2022/12/12
  * @time 11:38
  * @Description 实现接口
+ *
+ * 它自己本身不进行校验处理 !!!
+ * 通过{@link org.springframework.web.method.annotation.ModelAttributeMethodProcessor} 进行 controller 中的方法
+ * 注入的验证组来进行 进行查询分类验证 !!!
  */
 public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport<S, T> {
 
@@ -16,7 +20,7 @@ public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport
     default T selectListGroupHandle(S s) {
         return null;
     }
-
+    default T selectOneGroupHandle(S s) { return null; }
     default T selectByIdGroupHandle(S s) {
         return null;
     }
@@ -33,6 +37,7 @@ public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport
         return null;
     }
 
+
     default T validationHandle(S s) {
         Class<? extends Validation> validationGroup = ValidationSupport.Companion.getValidationGroup();
         if (ADD.class.equals(validationGroup)) {
@@ -41,14 +46,20 @@ public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport
             return selectByIdGroupHandle(s);
         } else if (SELECT_LIST.class.equals(validationGroup)) {
             return selectListGroupHandle(s);
-        } else if (UPDATE.class.equals(validationGroup)) {
+        } else if(SELECT_ONE.class.equals(validationGroup)) {
+            return selectOneGroupHandle(s);
+        }
+        else if (UPDATE.class.equals(validationGroup)) {
             return updateGroupHandle(s);
         } else if (DELETE.class.equals(validationGroup)) {
             return deleteGroupHandle(s);
         } else if (DELETE_BY_ID.class.equals(validationGroup)) {
             return deleteByIdGroupHandle(s);
         } else {
-            throw new IllegalArgumentException("can't not support current validation Group, please override this method !!!");
+
+            // 给其他转换器一个机会 !!!
+            return null;
+            //throw new IllegalArgumentException("can't not support current validation Group, please override this method !!!");
         }
     }
 

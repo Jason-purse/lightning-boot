@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support
+package com.jianyue.lightning.boot.starter.generic.crud.service.util
 
 import com.jianyue.lightning.boot.starter.util.isNull
 
