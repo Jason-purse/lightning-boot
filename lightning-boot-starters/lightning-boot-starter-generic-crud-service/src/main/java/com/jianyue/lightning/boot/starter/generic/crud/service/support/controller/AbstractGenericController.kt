@@ -1,8 +1,8 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.controller
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.*
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.CrudService
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates.*
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.*
  * @date 2022/12/13
  * @time 10:14
  * @Description 通用模板方法
+ *
+ * 方法 open的原因是如果是cglib 代理,默认如果不可继承,则无法正确获取数据 !!!!
+ *
+ * 此通用crud 服务并不会影响事务的正常执行 !!!
+ *
+ * 因为可以基于 aop 实现声明式事务管理 !!!!
  */
 abstract class AbstractGenericController<PARAM : Param,Service: CrudService<PARAM>>(private val service: Service) {
 
     // 为了参数解析(先初始化model)
     @ModelAttribute
-    @ValidationAnnotation
     fun binder() {
         val old  = ControllerSupport.paramClassState.get()
         ControllerSupport.paramClassState.set(Tuple(getService().getParamClass(),old))
@@ -28,61 +33,49 @@ abstract class AbstractGenericController<PARAM : Param,Service: CrudService<PARA
 
 
     @GetMapping("list")
-    @ValidationAnnotation
     @SelectListGroup
     open fun selectOperations(param: PARAM): CrudResult {
-        ValidationSupport.setSelectListGroup()
         return getService().selectOperation(InputContext.of(param))
     }
 
 
     @GetMapping
-    @ValidationAnnotation
     @SelectByIdGroup
     open fun selectOperationById(param: PARAM): CrudResult {
-        ValidationSupport.setSelectByIdGroup()
         return getService().selectOperationById(InputContext.of(param))
     }
 
     @PostMapping
-    @ValidationAnnotation
     @AddGroup
     open fun addOperation(@RequestBody param: Param): CrudResult {
-        ValidationSupport.setAddGroup()
         @Suppress("UNCHECKED_CAST")
         return getService().addOperation(InputContext.of(param as PARAM))
     }
 
     @PutMapping
-    @ValidationAnnotation
     @UpdateGroup
     open fun updateOperation(@RequestBody param: Param): CrudResult {
-        ValidationSupport.setUpdateGroup()
         @Suppress("UNCHECKED_CAST")
         return getService().saveOperation(InputContext.of(param as PARAM))
     }
 
     @DeleteMapping
-    @ValidationAnnotation
     @DeleteByIdGroup
     open fun deleteOperationById(param: PARAM): CrudResult {
-        ValidationSupport.setDeleteByIdGroup()
         return getService().deleteOperationById(InputContext.of(param))
     }
 
 
-    @ValidationAnnotation
     @DeleteMapping("criteria")
     @DeleteGroup
     open fun deleteOperation(param: PARAM): CrudResult {
-        ValidationSupport.setDeleteGroup()
         return getService().deleteOperation(InputContext.of(param))
     }
 
     /**
      * 子类继承服务
      */
-    protected open fun getService(): Service {
+    open fun getService(): Service {
         return service;
     }
 }

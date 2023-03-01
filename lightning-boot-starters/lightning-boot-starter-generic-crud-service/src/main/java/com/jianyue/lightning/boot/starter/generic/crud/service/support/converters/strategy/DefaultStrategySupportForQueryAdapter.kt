@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.entity.IdSupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
@@ -15,7 +15,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mon
  * 基于验证组的情况下,来实现 对应分类组的 参数转换为查询实现 !!!!
  */
 interface DefaultValidationSupportForQueryAdapter<SOURCE : IdSupport<*>> :
-    DefaultValidationSupportAdapter<SOURCE, QuerySupport>,
+    DefaultStrategySupportAdapter<SOURCE, QuerySupport>,
     Converter<SOURCE, QuerySupport> {
 
 

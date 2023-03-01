@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -16,5 +16,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Validated(SELECT_ONE.class)
-public @interface SelectOne {
+public @interface SelectOneGroup {
 }

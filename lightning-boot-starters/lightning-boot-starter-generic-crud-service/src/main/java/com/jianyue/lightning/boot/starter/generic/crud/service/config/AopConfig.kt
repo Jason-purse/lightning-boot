@@ -2,10 +2,9 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates.NONE
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates.Validation
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates.ValidationAnnotation
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates.ValidationSupport
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.NONE
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroup
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroupSupport
 import com.jianyue.lightning.boot.starter.util.isNotNull
 
 import org.aopalliance.intercept.MethodInterceptor
@@ -15,14 +14,12 @@ import org.springframework.aop.Advisor
 import org.springframework.aop.ClassFilter
 import org.springframework.aop.MethodMatcher
 import org.springframework.aop.support.DefaultPointcutAdvisor
-import org.springframework.aop.support.annotation.AnnotationClassFilter
 import org.springframework.aop.support.annotation.AnnotationMethodMatcher
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.stereotype.Controller
 import org.springframework.util.ConcurrentReferenceHashMap
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestMapping
@@ -36,7 +33,7 @@ import kotlin.reflect.full.isSubclassOf
 @ConditionalOnBean(value = [DBTemplate::class])
 class AopConfig {
     companion object {
-        private val validationGroupCache = ConcurrentReferenceHashMap<Method, Class<out Validation>>();
+        private val validationGroupCache = ConcurrentReferenceHashMap<Method, Class<out StrategyGroup>>();
     }
 
 
@@ -113,11 +110,11 @@ class AopConfig {
     }
 
 
-    private fun validationGroupSet(jointpoint: MethodInvocation): Class<out Validation>? {
+    private fun validationGroupSet(jointpoint: MethodInvocation): Class<out StrategyGroup>? {
 
         // 如果存在
         validationGroupCache[jointpoint.method]?.let {
-            return ValidationSupport.setValidationGroupAndReturnOld(it)
+            return StrategyGroupSupport.setStrategyGroupAndReturnOld(it)
         }
 
         // 否则计算
@@ -132,12 +129,12 @@ class AopConfig {
                         AnnotationUtils.findAnnotation(annotation.annotationClass.java, Validated::class.java)
                             ?.run {
                                 if (this.value.isNotEmpty()) {
-                                    if (this.value[0].isSubclassOf(Validation::class)) {
+                                    if (this.value[0].isSubclassOf(StrategyGroup::class)) {
 
                                         @Suppress("UNCHECKED_CAST")
-                                        (this.value[0].java as Class<out Validation>).apply {
+                                        (this.value[0].java as Class<out StrategyGroup>).apply {
                                             validationGroupCache[jointpoint.method] = this
-                                            return ValidationSupport.setValidationGroupAndReturnOld(this)
+                                            return StrategyGroupSupport.setStrategyGroupAndReturnOld(this)
                                         }
                                     }
                                 }
@@ -147,10 +144,10 @@ class AopConfig {
             }
         }
 
-        return ValidationSupport.setValidationGroupAndReturnOld(NONE::class.java)
+        return StrategyGroupSupport.setStrategyGroupAndReturnOld(NONE::class.java)
     }
 
-    private fun validationGroupRemove(validationGroup: Class<out Validation>?) {
-        ValidationSupport.setValidationGroupAndReturnOld(validationGroup)
+    private fun validationGroupRemove(validationGroup: Class<out StrategyGroup>?) {
+        StrategyGroupSupport.setStrategyGroupAndReturnOld(validationGroup)
     }
 }

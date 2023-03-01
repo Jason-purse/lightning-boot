@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
 
 import org.springframework.validation.annotation.Validated;
 
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Validated(UPDATE.class)
-public @interface UpdateGroup {
+@Validated(DELETE_BY_ID.class)
+public @interface DeleteByIdGroup {
 }

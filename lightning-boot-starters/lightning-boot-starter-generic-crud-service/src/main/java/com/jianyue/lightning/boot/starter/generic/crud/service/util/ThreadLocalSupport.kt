@@ -18,6 +18,18 @@ interface ThreadLocalSupport<T> {
 
     fun get(): T?
 
+    fun setAndReturnOld(t: T?): T? {
+        return get().apply {
+            set(t);
+        }
+    }
+
+    fun removeAndReturnOld(): T? {
+        return get().apply {
+            remove()
+        }
+    }
+
     fun remove(): T?
 
 

@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
 
 /**
  * @author FLJ
@@ -10,7 +10,7 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.support.converte
  * 通过{@link org.springframework.web.method.annotation.ModelAttributeMethodProcessor} 进行 controller 中的方法
  * 注入的验证组来进行 进行查询分类验证 !!!
  */
-public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport<S, T> {
+public interface DefaultStrategySupportAdapter<S, T> extends StrategyGroupSupport<S, T> {
 
 
     default T addGroupHandle(S s) {
@@ -39,7 +39,7 @@ public interface DefaultValidationSupportAdapter<S, T> extends ValidationSupport
 
 
     default T validationHandle(S s) {
-        Class<? extends Validation> validationGroup = ValidationSupport.Companion.getValidationGroup();
+        Class<? extends StrategyGroup> validationGroup = StrategyGroupSupport.Companion.getValidationGroup();
         if (ADD.class.equals(validationGroup)) {
             return addGroupHandle(s);
         } else if (SELECT_BY_ID.class.equals(validationGroup)) {
