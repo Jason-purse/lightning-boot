@@ -4,7 +4,12 @@ import com.jianyue.lightning.boot.starter.util.BeanUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-
+/**
+ * @author FLJ
+ * @date 2023/3/1
+ * @time 17:30
+ * @Description 实体转换器 !!!
+ */
 public interface EntityConverter<SOURCE,Entity> extends Converter<SOURCE, Entity> {
 
     @Override
@@ -17,6 +22,7 @@ public interface EntityConverter<SOURCE,Entity> extends Converter<SOURCE, Entity
         if (getSourceClass() instanceof Class<?>) {
             return ((Class<?>) getSourceClass()).isInstance(param);
         }
+
         return false;
     }
 

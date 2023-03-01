@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.query;
 /**
  * @author FLJ
  * @date 2022/12/9

@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.EntityConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity

@@ -1,6 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.EmptyQuery
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.EmptyQuery
 import org.springframework.data.mongodb.core.query.Query
 /**
  * @author FLJ

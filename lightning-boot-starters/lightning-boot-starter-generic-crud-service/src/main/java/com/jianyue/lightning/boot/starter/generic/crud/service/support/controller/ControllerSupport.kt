@@ -1,7 +1,7 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.controller
 
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.ThreadLocalSupport
+import com.jianyue.lightning.boot.starter.generic.crud.service.util.ThreadLocalSupport
 
 /**
  * @author FLJ

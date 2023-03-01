@@ -1,10 +1,8 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters
 
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
 import com.jianyue.lightning.boot.starter.util.ClassUtil
 import com.jianyue.lightning.boot.starter.util.isNotNull
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.ReleaseAwaredConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
@@ -169,8 +167,8 @@ abstract class AbstractConverterAdapter<S, T> : Converter<S, T>, ApplicationCont
     override fun destroy() {
         // 有一些直接spring 依赖注入,有一些手动加入的 ...
         for (converter in converters) {
-            if (converter is ReleaseAwaredConverter) {
-                converter.release()
+            if (converter is AutoCloseConverter) {
+                converter.close()
             }
         }
 

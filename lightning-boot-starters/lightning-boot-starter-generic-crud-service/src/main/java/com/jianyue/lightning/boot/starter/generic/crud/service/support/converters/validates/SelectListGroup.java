@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
 
 import org.springframework.validation.annotation.Validated;
 

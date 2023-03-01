@@ -36,9 +36,10 @@ interface CrudService<PARAM: Param> {
 
     fun selectOperation(context: InputContext<PARAM>): CrudResult
 
-    fun deleteOperation(context: InputContext<PARAM>): CrudResult
-
     fun selectOperationById(context: InputContext<PARAM>): CrudResult
+
+
+    fun deleteOperation(context: InputContext<PARAM>): CrudResult
 
     fun deleteOperationById(context: InputContext<PARAM>): CrudResult
 

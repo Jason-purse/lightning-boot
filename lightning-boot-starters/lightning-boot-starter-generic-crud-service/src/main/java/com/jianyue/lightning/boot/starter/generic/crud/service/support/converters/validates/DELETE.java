@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.validates;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.validates;
 /**
  * @author FLJ
  * @date 2022/12/9
