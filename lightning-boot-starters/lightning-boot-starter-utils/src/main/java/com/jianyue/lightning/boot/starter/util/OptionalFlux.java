@@ -91,6 +91,18 @@ public class OptionalFlux<S> {
         return this;
     }
 
+    public OptionalFlux<S> consume(NOArgConsumer consumer) {
+        this.value.ifPresent(ele -> consumer.accept());
+        return this;
+    }
+
+    public  OptionalFlux<S> existsForThrowEx(RuntimeException ex) {
+        if(this.isPresent()) {
+            throw  ex;
+        }
+        return this;
+    }
+
     public OptionalFlux<S> combine(OptionalFlux<S> other, BiFunction<S,S,S> handler) {
         if(other.isPresent() && this.isPresent()) {
             return OptionalFlux.of(handler.apply(getResult(),other.getResult()));
