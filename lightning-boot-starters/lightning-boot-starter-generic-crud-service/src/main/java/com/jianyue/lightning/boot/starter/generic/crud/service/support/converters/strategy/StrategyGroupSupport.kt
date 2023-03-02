@@ -1,6 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.util.ThreadLocalSupport
+import com.jianyue.lightning.boot.starter.util.ThreadLocalSupport
 
 /**
  * @author FLJ

@@ -1,6 +1,8 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.AbstractGenericController
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.EnableStrategyWithValidationAnnotation
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.NONE
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroup
@@ -13,26 +15,42 @@ import org.aspectj.lang.annotation.Aspect
 import org.springframework.aop.Advisor
 import org.springframework.aop.ClassFilter
 import org.springframework.aop.MethodMatcher
+import org.springframework.aop.support.ClassFilters
 import org.springframework.aop.support.DefaultPointcutAdvisor
+import org.springframework.aop.support.RootClassFilter
+import org.springframework.aop.support.annotation.AnnotationClassFilter
 import org.springframework.aop.support.annotation.AnnotationMethodMatcher
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.core.annotation.AnnotationUtils
+import org.springframework.stereotype.Controller
 import org.springframework.util.ConcurrentReferenceHashMap
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestMapping
 import java.lang.reflect.Method
 import kotlin.reflect.full.isSubclassOf
 
-
+/**
+ * @author FLJ
+ * @date 2023/3/2
+ * @time 11:22
+ * @Description 实现 控制器上的验证  - 基于策略组进行 参数校验 !!!
+ *
+ * 通过导入器导入 !!!!
+ */
+@AutoConfiguration
 @Configuration
 @EnableAspectJAutoProxy
 @Aspect
 @ConditionalOnBean(value = [DBTemplate::class])
-class AopConfig {
+class ControllerValidationAopAspectConfiguration {
     companion object {
+        /**
+         * 验证分组缓存 !!!
+         */
         private val validationGroupCache = ConcurrentReferenceHashMap<Method, Class<out StrategyGroup>>();
     }
 
@@ -42,10 +60,14 @@ class AopConfig {
         return DefaultPointcutAdvisor(
             object : org.springframework.aop.Pointcut {
                 private val methodPreMatcher = AnnotationMethodMatcher(RequestMapping::class.java, true);
-                private val otherMethodPreMatcher = AnnotationMethodMatcher(ValidationAnnotation::class.java, true);
+                private val otherMethodPreMatcher =
+                    AnnotationMethodMatcher(EnableStrategyWithValidationAnnotation::class.java, true);
+
                 override fun getClassFilter(): ClassFilter {
-//                    return AnnotationClassFilter(Controller::class.java, true)
-                    return ClassFilter.TRUE;
+                    return ClassFilters.intersection(
+                        RootClassFilter(AbstractGenericController::class.java),
+                        AnnotationClassFilter(Controller::class.java, true)
+                    )
                 }
 
                 override fun getMethodMatcher(): MethodMatcher {
@@ -78,37 +100,6 @@ class AopConfig {
         )
     }
 
-    //    TODO
-    private fun inspectParameterAnnotations(method: Method, index: Int): Boolean {
-        if (index == -1) {
-            for (parameterAnnotation in method.parameterAnnotations) {
-                if (inspectParameterAnnotation(parameterAnnotation)) {
-                    return true;
-                }
-            }
-        } else {
-            return inspectParameterAnnotation(method.parameterAnnotations[index])
-        }
-
-        return false;
-    }
-
-
-    private fun inspectParameterAnnotation(annotation: Array<Annotation>): Boolean {
-        annotation.let {
-            for (clazz in it) {
-                // 将它作为一个元注解的载体,向上解析
-                AnnotationUtils.findAnnotation(
-                    clazz.annotationClass.java,
-                    ValidationAnnotation::class.java
-                ).apply {
-                    return it.isNotNull()
-                }
-            }
-            return false
-        }
-    }
-
 
     private fun validationGroupSet(jointpoint: MethodInvocation): Class<out StrategyGroup>? {
 
@@ -116,35 +107,38 @@ class AopConfig {
         validationGroupCache[jointpoint.method]?.let {
             return StrategyGroupSupport.setStrategyGroupAndReturnOld(it)
         }
-
-        // 否则计算
-        jointpoint.method.parameterAnnotations.let {
-            // 按道理来说,参数必然不为空
-
-            // 可以细节化,给定到每一个参数
-            // TODO()
-            if (it.isNotEmpty()) {
-                for (annotations in it) {
-                    for (annotation in annotations) {
-                        AnnotationUtils.findAnnotation(annotation.annotationClass.java, Validated::class.java)
-                            ?.run {
-                                if (this.value.isNotEmpty()) {
-                                    if (this.value[0].isSubclassOf(StrategyGroup::class)) {
-
-                                        @Suppress("UNCHECKED_CAST")
-                                        (this.value[0].java as Class<out StrategyGroup>).apply {
-                                            validationGroupCache[jointpoint.method] = this
-                                            return StrategyGroupSupport.setStrategyGroupAndReturnOld(this)
-                                        }
-                                    }
-                                }
-                            }
-                    }
+        val currentTargetObject = jointpoint.`this`!!
+        getValidationAnnotation(currentTargetObject, jointpoint).run {
+            if (isNotNull()) {
+                return this
+            }
+            getValidationAnnotation(jointpoint.method, jointpoint).run {
+                if (isNotNull()) {
+                    return this;
                 }
             }
         }
 
         return StrategyGroupSupport.setStrategyGroupAndReturnOld(NONE::class.java)
+    }
+
+    private fun getValidationAnnotation(
+        annotationElement: Any,
+        jointpoint: MethodInvocation
+    ): Class<out StrategyGroup>? {
+        AnnotationUtils.findAnnotation(annotationElement.javaClass, Validated::class.java)?.let {
+            if (it.value.isNotEmpty()) {
+                if (it.value[0].isSubclassOf(StrategyGroup::class)) {
+
+                    @Suppress("UNCHECKED_CAST")
+                    (it.value[0].java as Class<out StrategyGroup>).apply {
+                        validationGroupCache[jointpoint.method] = this
+                        return StrategyGroupSupport.setStrategyGroupAndReturnOld(this)
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private fun validationGroupRemove(validationGroup: Class<out StrategyGroup>?) {

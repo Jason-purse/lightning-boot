@@ -14,13 +14,16 @@ interface CrudResult {
     /**
      * 在java 环境中,不进行显式的类型强转 !!!
      */
-    fun <T: Any?> getResult(): T
+    fun <T : Any?> getResult(): T
 
     /**
      * 判断是否有解决
      */
     fun hasResult(): Boolean
 
+    fun hasError(): Boolean {
+        return getCode() != 200
+    }
 
     /**
      * 如果说result 是一个 Collection
@@ -57,7 +60,9 @@ interface CrudResult {
         private val REQUEST_ERROR = AbstractCrudResult(null, 400, "operation error");
 
 
-        private val DATA_ERROR = AbstractCrudResult(null,400,"no needed data");
+        private val DATA_ERROR = AbstractCrudResult(null, 400, "No data was found that was needed.");
+
+        private val DATA_CONFLICT = AbstractCrudResult(null, 400, "data conflicts.")
 
         fun success(): CrudResult {
             return EMPTY_SUCCESS;
@@ -69,10 +74,12 @@ interface CrudResult {
         }
 
         fun success(message: String): CrudResult {
-            return AbstractCrudResult(null,200,message);
+            return AbstractCrudResult(null, 200, message);
         }
 
-
+        /**
+         * 自定义错误 !!!
+         */
         fun error(code: Int, message: String): CrudResult {
             return AbstractCrudResult(null, code, message);
         }
@@ -94,6 +101,12 @@ interface CrudResult {
         fun noData(): CrudResult {
             return DATA_ERROR;
         }
+
+        fun dataConflict(): CrudResult {
+            return DATA_CONFLICT;
+        }
+
+
 
     }
 }

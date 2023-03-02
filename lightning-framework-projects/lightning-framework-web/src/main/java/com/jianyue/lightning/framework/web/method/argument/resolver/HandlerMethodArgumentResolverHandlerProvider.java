@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver;
+package com.jianyue.lightning.framework.web.method.argument.resolver;
 
 import com.jianyue.lightning.boot.starter.util.factory.Handler;
 import com.jianyue.lightning.boot.starter.util.factory.HandlerProvider;
@@ -11,6 +11,11 @@ import java.util.function.Predicate;
  * @date 2023/2/23
  * @time 10:38
  * @Description 为基于工厂的HandlerMethodArgumentResolver 提供解析器处理器
+ *
+ * 提供的对象是 {@link HandlerMethodArgumentResolverHandler} ...
+ *
+ * 这个Provider 可以基于Key 拥有相同key的兄弟 {@link HandlerMethodArgumentResolverHandlerProvider}
+ * 同时基于不同的{@link #predicate} 来实现不同策略实现不同的handler 提供 !!!
  */
 public class HandlerMethodArgumentResolverHandlerProvider<H extends Handler> implements HandlerProvider {
 
@@ -33,7 +38,7 @@ public class HandlerMethodArgumentResolverHandlerProvider<H extends Handler> imp
 
     @NotNull
     @Override
-    public Handler getHandler() {
+    public H getHandler() {
         return handler;
     }
 

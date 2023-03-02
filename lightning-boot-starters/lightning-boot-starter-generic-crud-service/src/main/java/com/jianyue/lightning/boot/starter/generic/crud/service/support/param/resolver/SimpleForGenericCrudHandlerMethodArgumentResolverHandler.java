@@ -5,6 +5,8 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.controlle
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
+import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandler;
+import com.jianyue.lightning.framework.web.method.argument.resolver.MethodArgumentContext;
 import com.jianyue.lightning.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
@@ -16,12 +18,17 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.function.Predicate;
-
+/**
+ * @author FLJ
+ * @date 2023/3/2
+ * @time 11:45
+ * @Description 这个参数解析器 处理了 {@link AbstractGenericController}的所有invoke method的参数解析 !!!
+ * 包括处理 {@link org.springframework.web.bind.annotation.RequestBody} 注解  - 通过 {@link #messageConverter}
+ */
 public class SimpleForGenericCrudHandlerMethodArgumentResolverHandler implements HandlerMethodArgumentResolverHandler {
     private final Predicate<MethodParameter> predicate =
-            methodParameter -> AbstractGenericController.class.isAssignableFrom(methodParameter.getDeclaringClass())
-                    && ControllerSupport.Companion.getParamClassState().get() != null
-                    && Param.class.isAssignableFrom(methodParameter.getParameterType());
+            methodParameter ->  Param.class.isAssignableFrom(methodParameter.getParameterType()) &&
+                    ControllerSupport.Companion.getParamClassState().get() != null;
 
     private final GenericCRUDModelAttributeMethodProcessor genericCrudMethodProcessor = new GenericCRUDModelAttributeMethodProcessor();
 

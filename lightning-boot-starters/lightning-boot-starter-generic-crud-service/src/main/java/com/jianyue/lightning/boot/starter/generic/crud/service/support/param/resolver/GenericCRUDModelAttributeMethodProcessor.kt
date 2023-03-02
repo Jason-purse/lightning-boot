@@ -20,6 +20,7 @@ import java.lang.reflect.Constructor
  */
 class GenericCRUDModelAttributeMethodProcessor : ServletModelAttributeMethodProcessor(true) {
 
+
     private fun getPrimaryConstructor(paramClass: Class<*>): Constructor<*> {
         var ctor: Constructor<*>? = BeanUtils.findPrimaryConstructor(paramClass)
         if (ctor == null) {

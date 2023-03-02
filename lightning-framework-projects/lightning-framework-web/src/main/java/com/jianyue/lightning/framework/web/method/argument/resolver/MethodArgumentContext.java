@@ -1,4 +1,4 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver;
+package com.jianyue.lightning.framework.web.method.argument.resolver;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver;
+package com.jianyue.lightning.framework.web.method.argument.resolver;
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.util.ThreadLocalSupport;
+import com.jianyue.lightning.boot.starter.util.ThreadLocalSupport;
 import com.jianyue.lightning.boot.starter.util.OptionalFlow;
 import com.jianyue.lightning.boot.starter.util.factory.Handler;
 import com.jianyue.lightning.boot.starter.util.factory.HandlerFactory;
