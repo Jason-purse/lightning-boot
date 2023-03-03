@@ -16,8 +16,9 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.Cr
 open class AbstractCrudResult(private val result: Any?, private val code: Int, private val message: String) :
     CrudResult {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> getResult(): T {
-        return (T)this.result;
+        return this.result as T;
     }
 
     override fun hasResult(): Boolean {
