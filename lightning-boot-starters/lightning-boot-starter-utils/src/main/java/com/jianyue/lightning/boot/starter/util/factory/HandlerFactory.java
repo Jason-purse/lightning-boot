@@ -3,6 +3,7 @@ package com.jianyue.lightning.boot.starter.util.factory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,16 @@ public class HandlerFactory {
     public  List<HandlerProvider> getHandlers(Object key) {
         return handlerCache.get(key);
     }
+
+    public List<HandlerProvider> getRequiredHandlers(Object key,Object predicate) {
+
+        List<HandlerProvider> handlers = getHandlers(key);
+        if(handlers != null && handlers.size() >  0) {
+            return handlers.stream().filter(ele -> ele.support(predicate)).toList();
+        }
+        return Collections.emptyList();
+    }
+
 
     @Nullable
     public  HandlerProvider getHandler(Object key, Object predicate) {

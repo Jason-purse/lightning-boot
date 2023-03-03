@@ -1,10 +1,8 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
-import com.jianyue.lightning.boot.autoconfigure.web.EnableBaseFactoryHandlerMethodArgumentResolver
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.EnableControllerValidationStrategy
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.JpaDbTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.MongoDbTemplate
-import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerFactoryConfigurer
 import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver
 import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandlerProvider
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler
@@ -16,12 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
 import org.springframework.context.annotation.Import
-import org.springframework.core.MethodParameter
 import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.web.bind.support.WebDataBinderFactory
-import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
-import org.springframework.web.method.support.ModelAndViewContainer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**

@@ -3,25 +3,21 @@ package com.jianyue.lightning.boot.autoconfigure.web;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jianyue.lightning.boot.exception.feign.AbstractFeignApplicationException;
+import com.jianyue.lightning.framework.web.config.LightningWebConfigurations;
 import com.jianyue.lightning.result.Result;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import com.jianyue.lightning.framework.web.advice.DefaultGlobalControllerExceptionHandler;
-import com.jianyue.lightning.framework.web.logs.LightningWebLogInterceptor;
-import com.jianyue.lightning.framework.web.logs.ProfilerRequestMappingHandlerAdapter;
 
 import java.util.List;
 
@@ -33,39 +29,15 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(WebProperties.class)
+@RequiredArgsConstructor
+@Import(LightningWebConfigurations.class)
 public class WebConfigAutoConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private WebProperties webProperties;
-
-    /**
-     * 提供了拦截器 ... 决定是否启用 ..
-     * 确保则不加入 ..
-     */
-    @Bean
-    @ConditionalOnProperty(value = "lightning.web.config.logging.enable")
-    public WebMvcRegistrations webMvcRegistrations() {
-        return new WebMvcRegistrations() {
-            @Override
-            public RequestMappingHandlerAdapter getRequestMappingHandlerAdapter() {
-                return new ProfilerRequestMappingHandlerAdapter();
-            }
-        };
-    }
-
-    /**
-     *  确保加入了 ProfilerRequestMappingHandlerAdapter 才进行 LightningWebLogInterceptor拦截器获取
-     */
-    @ConditionalOnProperty(value = "lightning.web.config.logging.enable")
-    @Bean
-    public void addInterceptors(InterceptorRegistry registry, LightningWebLogInterceptor logInterceptor) {
-        registry.addInterceptor(logInterceptor);
-    }
-
-
+    private final WebProperties webProperties;
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void extendMessageConverters(@NotNull List<HttpMessageConverter<?>> converters) {
+        WebMvcConfigurer.super.extendMessageConverters(converters);
         if(webProperties.getJson().getSerializeIncludeNonNull()) {
             converters.stream().filter(ele -> ele instanceof MappingJackson2HttpMessageConverter)
                     .forEach(ele -> {
@@ -74,6 +46,7 @@ public class WebConfigAutoConfiguration implements WebMvcConfigurer {
                     });
         }
     }
+
 
     /**
      * feign 和  普通异常的拦截自动切换 ...
