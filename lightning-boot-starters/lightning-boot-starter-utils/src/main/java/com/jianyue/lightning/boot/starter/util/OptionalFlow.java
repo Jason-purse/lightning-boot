@@ -259,14 +259,18 @@ public class OptionalFlow<S> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         OptionalFlow<?> that = (OptionalFlow<?>) o;
         return Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(this,value);
     }
 }

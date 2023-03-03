@@ -33,10 +33,6 @@ public class OptionalFlux<S> {
         void accept();
     }
 
-    /**
-     * 结果目标对象
-     */
-    private Object target;
 
     /**
      * @param value optional value
@@ -44,8 +40,6 @@ public class OptionalFlux<S> {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public OptionalFlux(Optional<S> value) {
         this.value = value;
-        // 例如有些新的OptionalFlux 需要设置目标值
-        value.ifPresent(s -> this.target = s);
     }
 
     public OptionalFlux(S value) {
@@ -96,6 +90,10 @@ public class OptionalFlux<S> {
         return this;
     }
 
+    public <T> OptionalFlux<T> cast(Class<T> targetClass) {
+        return this.map(targetClass::cast).orElse(OptionalFlux.empty());
+    }
+
     public  OptionalFlux<S> existsForThrowEx(RuntimeException ex) {
         if(this.isPresent()) {
             throw  ex;
@@ -116,42 +114,6 @@ public class OptionalFlux<S> {
     }
 
 
-    /**
-     * 映射逻辑,通过一个存在的值Map另一个值,或者产生一个!
-     *
-     * @param function 函数映射
-     * @param supplier 产生一个新值
-     * @param <T>      原始数据类型
-     * @return 返回新值..
-     */
-    public <T> T ifPresentOrElse(Function<S, T> function, Supplier<T> supplier) {
-        Objects.requireNonNull(function);
-        Objects.requireNonNull(supplier);
-        return this.value.isPresent() ? function.apply(this.value.get()) : supplier.get();
-    }
-
-    public void ifPresentOrElse(Consumer<S> consumer, SwitchUtil.Operation operation) {
-        Objects.requireNonNull(consumer);
-        Objects.requireNonNull(operation);
-        if (this.value.isPresent()) {
-            consumer.accept(this.value.get());
-        } else {
-            operation.exec();
-        }
-    }
-
-    /**
-     * 如果存在,则做出需要的map映射,否则对象为空!
-     *
-     * @param function exec function
-     * @param <T>      type
-     * @return OptionalFlux itself
-     */
-    public <T> OptionalFlux<S> ifPresent(Function<S, T> function) {
-        Objects.requireNonNull(function);
-        this.value.ifPresent(e -> this.target = function.apply(e));
-        return this;
-    }
 
     /**
      * if - else 逻辑
@@ -216,7 +178,7 @@ public class OptionalFlux<S> {
     public <T> OptionalFlux<T> switchMap(Function<S, T> function, Supplier<T> supplier) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(supplier);
-        return new OptionalFlux<>(ifPresentOrElse(function, supplier));
+        return this.map(function).orElse(supplier);
     }
 
 
@@ -229,7 +191,7 @@ public class OptionalFlux<S> {
      */
     @SuppressWarnings("unchecked")
     public <T> T getResult() {
-        return (T) this.target;
+        return (T) this.value.orElse(null);
     }
 
 
@@ -241,11 +203,7 @@ public class OptionalFlux<S> {
      */
     @Deprecated
     public <T> T getResult(Class<T> clazz) {
-        if (this.target == null) {
-            return null;
-        }
-
-        return clazz.cast(this.target);
+        return clazz.cast(getResult());
     }
 
     /**
@@ -257,29 +215,29 @@ public class OptionalFlux<S> {
     @SuppressWarnings("unchecked")
     @Deprecated
     public <T> List<T> getResultForList(Class<T> eleType) {
-        return getResult();
+        return ((List<T>) getResult());
     }
 
     @Nullable
     public Class<?> getTargetClass() {
-        if (target != null) {
-            return target.getClass();
-        }
-        return null;
+        return this.map(Object::getClass).orElse(OptionalFlux.empty()).getResult();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         OptionalFlux<?> that = (OptionalFlux<?>) o;
-        return Objects.equals(value, that.value) &&
-                Objects.equals(target, that.target);
+        return Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, target);
+        return Objects.hash(this,value);
     }
 
     /**

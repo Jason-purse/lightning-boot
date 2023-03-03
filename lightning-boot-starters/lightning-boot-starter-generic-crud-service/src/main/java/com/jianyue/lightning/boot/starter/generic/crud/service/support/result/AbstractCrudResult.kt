@@ -16,8 +16,8 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.Cr
 open class AbstractCrudResult(private val result: Any?, private val code: Int, private val message: String) :
     CrudResult {
 
-    override fun getResult(): Any? {
-        return result;
+    override fun <T> getResult(): T {
+        return (T)this.result;
     }
 
     override fun hasResult(): Boolean {
