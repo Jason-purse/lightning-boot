@@ -25,13 +25,7 @@ public class OptionalFlux<S> {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<S> value;
 
-    /**
-     * 无参消费者
-     */
-    @FunctionalInterface
-    public interface NOArgConsumer {
-        void accept();
-    }
+
 
 
     /**

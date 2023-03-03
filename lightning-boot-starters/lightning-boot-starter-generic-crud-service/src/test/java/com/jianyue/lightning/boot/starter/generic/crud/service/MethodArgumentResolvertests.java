@@ -4,15 +4,14 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.controlle
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.FactoryBasedHandlerMethodArgumentResolver;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.HandlerMethodArgumentResolverHandler;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.HandlerMethodArgumentResolverHandlerProvider;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.CrudService;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
+import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver;
+import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandlerProvider;
 import com.jianyue.lightning.util.JsonUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -94,7 +93,6 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
             }
 
             @NotNull
-            @Override
             public DBTemplate getDbTemplate() {
                 return null;
             }

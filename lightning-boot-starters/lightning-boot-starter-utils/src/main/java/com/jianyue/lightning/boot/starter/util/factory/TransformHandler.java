@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 public interface TransformHandler<DATA, T> extends Handler {
 
-        T get(DATA value);
+        T get(DATA value) throws Exception;
 
         static <DATA, T> TransformHandler<DATA, T> of(Function<DATA, T> transformer) {
             return new DefaultTransformHandler<>(transformer);

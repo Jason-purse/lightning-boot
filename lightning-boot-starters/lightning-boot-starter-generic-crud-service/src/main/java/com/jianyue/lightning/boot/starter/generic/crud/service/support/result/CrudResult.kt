@@ -1,7 +1,5 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.result
 
-import com.safone.order.service.model.order.verification.support.result.AbstractCrudResult
-
 /**
  * @date 2022/12/8
  * @time 22:55

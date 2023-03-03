@@ -1,9 +1,9 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.jianyue.lightning.boot.starter.generic.crud.service.config.ControllerValidationAopAspectConfiguration;
+import org.springframework.context.annotation.Import;
+
+import java.lang.annotation.*;
 
 /**
  * @author FLJ
@@ -20,8 +20,10 @@ import java.lang.annotation.Target;
  *
  * 如果不想要基于策略分组校验!! 可以不使用 {@link com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.AbstractGenericController}
  */
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Documented
+@Import(ControllerValidationAopAspectConfiguration.class)
 public @interface EnableControllerValidationStrategy {
 
 }

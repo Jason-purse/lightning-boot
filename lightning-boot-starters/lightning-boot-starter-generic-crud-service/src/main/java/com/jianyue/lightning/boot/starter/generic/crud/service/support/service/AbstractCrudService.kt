@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
+import org.springframework.util.Assert
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -42,13 +43,17 @@ import java.lang.reflect.ParameterizedType
  *
  *
  */
-abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService<PARAM>,
+abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: DBTemplate?) : CrudService<PARAM>,
     ApplicationContextAware,
     DisposableBean {
 
 
-    @Autowired
-    private lateinit var dbTemplate: DBTemplate
+    private var dbTemplate: DBTemplate?
+
+    // 例如根据 ioc 容器进行 注入 !!!
+    constructor() : this(null) {
+
+    }
 
 
     // 只要符合java assignableFrom 以及 逻辑 assignableFrom 语义即可 ...
@@ -72,8 +77,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
 
 
     init {
-
-
+        this.dbTemplate = dbTemplate;
         // 解析目标类型
         ResolvableType.forType(this.javaClass)
             .`as`(AbstractCrudService::class.java)
@@ -168,6 +172,9 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
         context: InputContext<PARAM>,
         action: QuerySupport.() -> CrudResult
     ): CrudResult {
+
+        Assert.notNull(dbTemplate,"dbTemplate must not be null !!!")
+
         if (queryConverters.support(context.dataFlow)) {
             return invokeByQueryConverter(context, action);
         }
@@ -339,10 +346,15 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
 
 
     private fun getDbTemplate(): DBTemplate {
-        return dbTemplate
+        return dbTemplate!!
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
+
+        if(dbTemplate == null) {
+            this. dbTemplate = applicationContext.getBean(DBTemplate::class.java)
+        }
+        Assert.notNull(dbTemplate,"dbTemplate must not be null !!!")
 
         // 使用spring 的自动装配能力,但是这些bean spring 不负责生命周期调用,所以我们需要负责
         applicationContext.autowireCapableBeanFactory.autowireBean(queryConverters);

@@ -24,6 +24,9 @@ import java.util.function.Predicate;
  * @time 11:45
  * @Description 这个参数解析器 处理了 {@link AbstractGenericController}的所有invoke method的参数解析 !!!
  * 包括处理 {@link org.springframework.web.bind.annotation.RequestBody} 注解  - 通过 {@link #messageConverter}
+ *
+ * 对于复杂的 {@link org.springframework.web.bind.annotation.RequestBody} 的 MappingJackson2HttpMessageConverter 策略解析 !!
+ * 可以进行自定义 !!!
  */
 public class SimpleForGenericCrudHandlerMethodArgumentResolverHandler implements HandlerMethodArgumentResolverHandler {
     private final Predicate<MethodParameter> predicate =
@@ -33,6 +36,9 @@ public class SimpleForGenericCrudHandlerMethodArgumentResolverHandler implements
     private final GenericCRUDModelAttributeMethodProcessor genericCrudMethodProcessor = new GenericCRUDModelAttributeMethodProcessor();
 
 
+    /**
+     * 这只是一个简单实现 !!!!
+     */
     private final MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter(Jackson2ObjectMapperBuilder.json().build()) {
         @NotNull
         @Override
