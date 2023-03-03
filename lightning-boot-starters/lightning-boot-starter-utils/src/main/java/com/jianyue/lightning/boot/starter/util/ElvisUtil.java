@@ -59,6 +59,16 @@ public class ElvisUtil {
         return acquireNotNullList(list, Collections.emptyList());
     }
 
+    public static <T> Collection<T> acquireNotNullList(Collection<T> list, Collection<T> defaultList) {
+        if(CollectionUtils.isNotEmpty(list)) {
+            return list;
+        }
+        return defaultList;
+    }
+    public static <T> Collection<T> acquireNotNullList_Empty(Collection<T> list) {
+        return acquireNotNullList(list, Collections.emptyList());
+    }
+
     public static <T> void isNotEmptyConsumer(T target,Consumer<T> consumer) {
         if(!ObjectUtils.isEmpty(target)) {
             Objects.requireNonNull(consumer,"consumer must not be null!")
@@ -120,5 +130,9 @@ public class ElvisUtil {
 
     public static String stringElvis(String value,String defaultValue) {
         return StringUtils.isNotBlank(value) ? value : defaultValue;
+    }
+
+    public static <T>  Collection<T> collectionElvis(Collection<T> first,Collection<T> second) {
+        return ElvisUtil.acquireNotNullList(first,second);
     }
 }
