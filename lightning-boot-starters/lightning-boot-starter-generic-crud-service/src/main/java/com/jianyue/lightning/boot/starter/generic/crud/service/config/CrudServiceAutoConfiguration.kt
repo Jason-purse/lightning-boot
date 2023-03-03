@@ -3,19 +3,17 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.config
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.EnableControllerValidationStrategy
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.JpaDbTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.MongoDbTemplate
-import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver
-import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandlerProvider
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
-import com.jianyue.lightning.framework.web.method.argument.resolver.DefaultHandlerMethodArgumentResolver
+import com.jianyue.lightning.framework.web.method.argument.resolver.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
-import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.core.MethodParameter
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
@@ -26,7 +24,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  */
 @ConditionalOnClass(WebMvcConfigurer::class)
 @EnableControllerValidationStrategy
-@EnableBaseFactoryHandlerMethodArgumentResolver
 @Import(MongoDbTemplate::class, JpaDbTemplate::class)
 @AutoConfigureAfter(value = [MongoDataAutoConfiguration::class, JpaRepositoriesAutoConfiguration::class])
 class CrudServiceAutoConfiguration : WebMvcConfigurer {
@@ -44,39 +41,51 @@ class CrudServiceAutoConfiguration : WebMvcConfigurer {
         }
     }
 
+    /**
+     * 注入 一个默认兜底策略 !!!
+     */
+    @Bean
+    fun factoryBasedMethodArgumentMessageConverterForCrudConfigurer(): FactoryBasedMethodArgumentMessageConverterConfigurer {
+        return FactoryBasedMethodArgumentMessageConverterConfigurer {
+            // fallback ...
+            it.registerHandlers(
+                DefaultFactoryBasedJsonHMAMessageConverterHandlerProvider(
+                    Param::class.java,
+                    // 必须不能是接口 !!
+                    { it is Param },
+                    object :
+                        FactoryBasedJsonHMAMessageConverterHandler {
+                        override fun get(value: HttpMessageContext): Any {
+                            return simpleHandlerMethodArgumentResolverHandler.messageConverter.read(
+                                value.targetClass,
+                                value.inputMessage
+                            )
+                        }
 
-    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
-        // 直接将 参数解析器 处理器 放入工厂中 !!!!
-        // 追加到工厂中 !!!
-        resolvers.filterIsInstance<FactoryBasedHandlerMethodArgumentResolver>().let {
-            if (it.isNotEmpty()) {
-                it.forEach {
-                    // 针对 Param java类的处理 ...
-                    it.addArgumentResolverHandlers(
-                        HandlerMethodArgumentResolverHandlerProvider(
-                            Param::class.java,
-                            simpleHandlerMethodArgumentResolverHandler,
-                            simpleHandlerMethodArgumentResolverHandler.predicate
-                        )
-                    )
-                }
+                        override fun supportsParameter(parameter: MethodParameter): Boolean {
+                            return !it.javaClass.isInterface
+                        }
 
-            } else {
-                // 也就是直接追加 !!
-                resolvers.add(
-                    DefaultHandlerMethodArgumentResolver(
-                        simpleHandlerMethodArgumentResolverHandler.predicate,
-                        simpleHandlerMethodArgumentResolverHandler
-                    )
+                    }
                 )
-            }
+            )
         }
-
     }
 
-    override fun extendMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
-        // 继承 mvc jackson 的配置选项
-        // JacksonHttpMessageConvertersConfiguration
-        converters.add(1, simpleHandlerMethodArgumentResolverHandler.messageConverter)
+    /**
+     * crud service 的方法参数解析器 !!!
+     */
+    @Bean
+    fun factoryBasedMethodArgumentResolver(): FactoryBasedHandlerMethodArgumentResolverConfigurer {
+        return FactoryBasedHandlerMethodArgumentResolverConfigurer {
+            it.addArgumentResolverHandlers(
+                DefaultFactoryBasedHMArgumentResolverHandlerProvider(
+                    Param::class.java,
+                    simpleHandlerMethodArgumentResolverHandler,
+                    simpleHandlerMethodArgumentResolverHandler.predicate
+                )
+            )
+        }
     }
+
 }

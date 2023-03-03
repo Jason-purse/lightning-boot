@@ -11,7 +11,7 @@ import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
 import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver;
-import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandlerProvider;
+import com.jianyue.lightning.framework.web.method.argument.resolver.DefaultFactoryBasedHMArgumentResolverHandlerProvider;
 import com.jianyue.lightning.util.JsonUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -136,7 +136,7 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
     private ConversionService conversionService;
 
     private final FactoryBasedHandlerMethodArgumentResolver factoryBasedHandlerMethodArgumentResolver = new FactoryBasedHandlerMethodArgumentResolver().addArgumentResolverHandlers(
-            new HandlerMethodArgumentResolverHandlerProvider<>(
+            new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
                     Param.class,
                     new SimpleForGenericCrudHandlerMethodArgumentResolverHandler(),
                     methodParameter -> ControllerSupport.Companion.getParamClassState().get() != null && Param.class.isAssignableFrom(methodParameter.getParameterType())

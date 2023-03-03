@@ -2,13 +2,11 @@ package com.jianyue.lightning.boot.starter.generic.crud.service;
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.config.ControllerValidationAopAspectConfiguration;
 import com.jianyue.lightning.boot.starter.generic.crud.service.config.CrudServiceAutoConfiguration;
-import com.jianyue.lightning.boot.starter.generic.crud.service.config.GenericCrudHandlerMethodArgumentResolverConfigurer;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.AbstractGenericController;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.ADD;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.SELECT_LIST;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.UPDATE;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.JpaDbTemplate;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.AbstractCrudService;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
@@ -16,16 +14,13 @@ import com.jianyue.lightning.framework.web.method.argument.resolver.*;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.MethodParameter;
-import org.springframework.data.jpa.repository.JpaContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -107,13 +102,13 @@ public class CrudControllerBootTests {
             }
 
             @Bean
-            public FactoryBasedHandlerFactoryConfigurer configurer() {
-                return new FactoryBasedHandlerFactoryConfigurer() {
+            public FactoryBasedHandlerMethodArgumentResolverConfigurer configurer() {
+                return new FactoryBasedHandlerMethodArgumentResolverConfigurer() {
                     @Override
                     public void configMethodArgumentResolver(FactoryBasedHandlerMethodArgumentResolver methodArgumentResolver) {
-                        methodArgumentResolver.addArgumentResolverHandlers(new HandlerMethodArgumentResolverHandlerProvider<>(
+                        methodArgumentResolver.addArgumentResolverHandlers(new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
                                 Param.class,
-                                new HandlerMethodArgumentResolverHandler() {
+                                new FactoryBasedHMArgumentResolverHandler() {
                                     @Override
                                     public Object get(MethodArgumentContext value) throws Exception {
                                         String type = value.getRequest().getParameter("type");

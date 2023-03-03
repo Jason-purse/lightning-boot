@@ -1,8 +1,8 @@
 package com.jianyue.lightning.framework.web.config;
 
 import com.jianyue.lightning.framework.web.advice.MethodParameterForHttpRequestBodyAdvice;
-import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBaseMethodArgumentMessageConverterConfigurer;
-import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerFactoryConfigurer;
+import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedMethodArgumentMessageConverterConfigurer;
+import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolverConfigurer;
 import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver;
 import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedMethodArgumentMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +27,15 @@ public class MethodArgumentResolverConfiguration implements WebMvcConfigurer {
 
 
     @Autowired(required = false)
-    public void configure(FactoryBaseMethodArgumentMessageConverterConfigurer... configurers) {
-        for (FactoryBaseMethodArgumentMessageConverterConfigurer configurer : configurers) {
+    public void configure(FactoryBasedMethodArgumentMessageConverterConfigurer... configurers) {
+        for (FactoryBasedMethodArgumentMessageConverterConfigurer configurer : configurers) {
             configurer.configure(factoryBasedMethodArgumentMessageConverter);
         }
     }
 
     @Autowired(required = false)
-    public void configureBasedFactoryMethodArgumentResolvers(List<FactoryBasedHandlerFactoryConfigurer> configurers) {
-        for (FactoryBasedHandlerFactoryConfigurer configurer : configurers) {
+    public void configureBasedFactoryMethodArgumentResolvers(List<FactoryBasedHandlerMethodArgumentResolverConfigurer> configurers) {
+        for (FactoryBasedHandlerMethodArgumentResolverConfigurer configurer : configurers) {
             configurer.configMethodArgumentResolver(factoryBasedMethodArgumentArgumentResolver);
         }
     }

@@ -6,7 +6,7 @@ package com.jianyue.lightning.framework.web.method.argument.resolver;
  * @time 10:56
  * @Description 用来追加handler 方法参数解析器 !!!
  */
-public interface FactoryBasedHandlerFactoryConfigurer {
+public interface FactoryBasedHandlerMethodArgumentResolverConfigurer {
 
     void configMethodArgumentResolver(FactoryBasedHandlerMethodArgumentResolver methodArgumentResolver);
 }

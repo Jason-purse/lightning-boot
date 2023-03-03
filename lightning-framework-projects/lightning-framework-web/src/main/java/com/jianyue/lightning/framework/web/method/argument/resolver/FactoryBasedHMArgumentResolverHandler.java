@@ -11,6 +11,6 @@ import com.jianyue.lightning.boot.starter.util.factory.TransformHandler;
  * 这就是基于{@link com.jianyue.lightning.boot.starter.util.factory.HandlerFactory}的最终{@link org.springframework.web.method.support.HandlerMethodArgumentResolver}
  * 的具体委派接口类 !!!
  */
-public interface HandlerMethodArgumentResolverHandler extends TransformHandler<MethodArgumentContext,Object> {
+public interface FactoryBasedHMArgumentResolverHandler extends TransformHandler<MethodArgumentContext,Object> {
 
 }

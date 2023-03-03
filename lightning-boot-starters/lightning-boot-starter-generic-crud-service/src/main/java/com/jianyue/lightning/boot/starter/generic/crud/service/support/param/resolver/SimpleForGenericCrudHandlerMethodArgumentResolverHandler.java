@@ -5,7 +5,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.controlle
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
-import com.jianyue.lightning.framework.web.method.argument.resolver.HandlerMethodArgumentResolverHandler;
+import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHMArgumentResolverHandler;
 import com.jianyue.lightning.framework.web.method.argument.resolver.MethodArgumentContext;
 import com.jianyue.lightning.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * 对于复杂的 {@link org.springframework.web.bind.annotation.RequestBody} 的 MappingJackson2HttpMessageConverter 策略解析 !!
  * 可以进行自定义 !!!
  */
-public class SimpleForGenericCrudHandlerMethodArgumentResolverHandler implements HandlerMethodArgumentResolverHandler {
+public class SimpleForGenericCrudHandlerMethodArgumentResolverHandler implements FactoryBasedHMArgumentResolverHandler {
     private final Predicate<MethodParameter> predicate =
             methodParameter ->  Param.class.isAssignableFrom(methodParameter.getParameterType()) &&
                     ControllerSupport.Companion.getParamClassState().get() != null;

@@ -72,7 +72,7 @@ public class FactoryBasedHandlerMethodArgumentResolver implements HandlerMethodA
         for (HandlerProvider provider : handlerProvider) {
             Object value = provider
                     .getHandler()
-                    .<HandlerMethodArgumentResolverHandler>nativeHandler()
+                    .<FactoryBasedHMArgumentResolverHandler>nativeHandler()
                     .get(context);
             if (value != null) {
                 return value;
@@ -85,7 +85,7 @@ public class FactoryBasedHandlerMethodArgumentResolver implements HandlerMethodA
     }
 
     @SafeVarargs
-    public final FactoryBasedHandlerMethodArgumentResolver addArgumentResolverHandlers(HandlerMethodArgumentResolverHandlerProvider<? extends Handler>... providers) {
+    public final FactoryBasedHandlerMethodArgumentResolver addArgumentResolverHandlers(DefaultFactoryBasedHMArgumentResolverHandlerProvider<? extends Handler>... providers) {
         handlerFactory.registerHandlers(Arrays.asList(providers));
         return this;
     }

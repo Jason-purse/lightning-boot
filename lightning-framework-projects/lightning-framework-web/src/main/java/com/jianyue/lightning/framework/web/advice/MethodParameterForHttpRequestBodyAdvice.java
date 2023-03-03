@@ -1,5 +1,6 @@
 package com.jianyue.lightning.framework.web.advice;
 
+import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedJsonHMAMessageConverterHandler;
 import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedMethodArgumentMessageConverter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -7,7 +8,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.lang.reflect.Type;
  * @date 2023/3/3
  * @time 17:18
  * @Description 用来为了对requestBody的结果进行解析 !!!
- * 为空的时候,无法进行解析 或者进一步让 {@link com.jianyue.lightning.framework.web.method.argument.resolver.JsonHttpMessageMethodArgumentResolver} 配置 !!!
+ * 为空的时候,无法进行解析 或者进一步让 {@link FactoryBasedJsonHMAMessageConverterHandler} 配置 !!!
  */
 public class MethodParameterForHttpRequestBodyAdvice extends RequestBodyAdviceAdapter {
     public static final String DEFAULT_HTTP_REQUEST_BODY_METHOD_PARAMETER_KEY = "lightning.security.method.argument.message.body.resolver";
@@ -47,7 +47,7 @@ public class MethodParameterForHttpRequestBodyAdvice extends RequestBodyAdviceAd
     @SneakyThrows
     @Override
     public Object handleEmptyBody(Object body, @NotNull HttpInputMessage inputMessage, MethodParameter parameter, @NotNull Type targetType, @NotNull Class<? extends HttpMessageConverter<?>> converterType) {
-        Object o = this.messageConverter.readForDirectInvoke(null, parameter.getParameterType(), inputMessage);
+        Object o = this.messageConverter.readForDirectInvoke(null, parameter.getParameterType(), parameter,inputMessage);
         if (o != null) {
             return o;
         }
