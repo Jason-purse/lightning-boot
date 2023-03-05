@@ -345,7 +345,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
     }
 
 
-    private fun getDbTemplate(): DBTemplate {
+    override fun getDbTemplate(): DBTemplate {
         return dbTemplate!!
     }
 
