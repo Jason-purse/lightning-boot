@@ -5,6 +5,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.En
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
+import org.jetbrains.annotations.NotNull
 
 /**
  * @author FLJ
@@ -46,5 +47,6 @@ interface CrudService<PARAM: Param> {
 
     fun getEntityClass(): Class<out Entity>
 
+    @NotNull
     fun getParamClass(): Class<out Param>
 }

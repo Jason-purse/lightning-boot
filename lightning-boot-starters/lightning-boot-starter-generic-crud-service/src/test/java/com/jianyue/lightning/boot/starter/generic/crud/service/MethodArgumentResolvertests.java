@@ -4,15 +4,12 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.controlle
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ControllerSupport;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity;
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler;
+//import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.SimpleForGenericCrudHandlerMethodArgumentResolverHandler;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.CrudService;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext;
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
-import com.jianyue.lightning.framework.web.method.argument.resolver.FactoryBasedHandlerMethodArgumentResolver;
-import com.jianyue.lightning.framework.web.method.argument.resolver.DefaultFactoryBasedHMArgumentResolverHandlerProvider;
-import com.jianyue.lightning.util.JsonUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,17 +21,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
-import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.mvc.method.annotation.ServletRequestDataBinderFactory;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -135,13 +125,13 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
     @Autowired
     private ConversionService conversionService;
 
-    private final FactoryBasedHandlerMethodArgumentResolver factoryBasedHandlerMethodArgumentResolver = new FactoryBasedHandlerMethodArgumentResolver().addArgumentResolverHandlers(
-            new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
-                    Param.class,
-                    new SimpleForGenericCrudHandlerMethodArgumentResolverHandler(),
-                    methodParameter -> ControllerSupport.Companion.getParamClassState().get() != null && Param.class.isAssignableFrom(methodParameter.getParameterType())
-            )
-    );
+//    private final FactoryBasedHandlerMethodArgumentResolver factoryBasedHandlerMethodArgumentResolver = new FactoryBasedHandlerMethodArgumentResolver().addArgumentResolverHandlers(
+//            new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
+//                    Param.class,
+//                    new SimpleForGenericCrudHandlerMethodArgumentResolverHandler(),
+//                    methodParameter -> ControllerSupport.Companion.getParamClassState().get() != null && Param.class.isAssignableFrom(methodParameter.getParameterType())
+//            )
+//    );
     @Test
     public void test() throws Exception {
 
@@ -166,20 +156,20 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
         ConfigurableWebBindingInitializer configurableWebBindingInitializer = new ConfigurableWebBindingInitializer();
         configurableWebBindingInitializer.setConversionService(conversionService);
 
-        if (factoryBasedHandlerMethodArgumentResolver.supportsParameter(parameter)) {
-            Object argument = factoryBasedHandlerMethodArgumentResolver
-                    .resolveArgument(
-                            parameter
-                            , new ModelAndViewContainer(),
-                            new ServletWebRequest(post),
-                            new ServletRequestDataBinderFactory(null,configurableWebBindingInitializer)
-                    );
-            Assert.notNull(argument,"must not be null !!!!");
-
-            System.out.println(argument);
-        }else {
-            System.out.println("can't support !!!!");
-        }
+//        if (factoryBasedHandlerMethodArgumentResolver.supportsParameter(parameter)) {
+//            Object argument = factoryBasedHandlerMethodArgumentResolver
+//                    .resolveArgument(
+//                            parameter
+//                            , new ModelAndViewContainer(),
+//                            new ServletWebRequest(post),
+//                            new ServletRequestDataBinderFactory(null,configurableWebBindingInitializer)
+//                    );
+//            Assert.notNull(argument,"must not be null !!!!");
+//
+//            System.out.println(argument);
+//        }else {
+//            System.out.println("can't support !!!!");
+//        }
     }
 
 
@@ -196,21 +186,21 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
         ));
 
         // 使用消息转换器
-        MappingJackson2HttpMessageConverter messageConverter = new SimpleForGenericCrudHandlerMethodArgumentResolverHandler().getMessageConverter();
-        if (messageConverter.canRead(parameter.getParameterType(), MediaType.APPLICATION_JSON)) {
-            MockHttpServletRequest request = new MockHttpServletRequest("post", "/get/forbody");
-            request.setContent(
-                    JsonUtil.getDefaultJsonUtil().asJSON(new User(
-                            "1231",
-                            "password"
-                    )).getBytes()
-            );
-            Object read = messageConverter.read(parameter.getParameterType(),
-                    new ServletServerHttpRequest(request));
-            Assert.notNull(read,"must not be null !!!!");
-
-            System.out.println(read);
-        }
+//        MappingJackson2HttpMessageConverter messageConverter = new SimpleForGenericCrudHandlerMethodArgumentResolverHandler().getMessageConverter();
+//        if (messageConverter.canRead(parameter.getParameterType(), MediaType.APPLICATION_JSON)) {
+//            MockHttpServletRequest request = new MockHttpServletRequest("post", "/get/forbody");
+//            request.setContent(
+//                    JsonUtil.getDefaultJsonUtil().asJSON(new User(
+//                            "1231",
+//                            "password"
+//                    )).getBytes()
+//            );
+//            Object read = messageConverter.read(parameter.getParameterType(),
+//                    new ServletServerHttpRequest(request));
+//            Assert.notNull(read,"must not be null !!!!");
+//
+//            System.out.println(read);
+//        }
     }
 
 

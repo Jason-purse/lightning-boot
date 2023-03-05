@@ -6,9 +6,11 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.C
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
+import org.springframework.core.ResolvableType
 
 
 import org.springframework.web.bind.annotation.*
+import java.lang.reflect.Modifier
 
 /**
  * @author FLJ
@@ -22,13 +24,22 @@ import org.springframework.web.bind.annotation.*
  *
  * 因为可以基于 aop 实现声明式事务管理 !!!!
  */
-abstract class AbstractGenericController<PARAM : Param,Service: CrudService<PARAM>>(private val service: Service) {
+abstract class AbstractGenericController<PARAM : Param, Service : CrudService<PARAM>>(private val service: Service) {
 
     // 为了参数解析(先初始化model)
     @ModelAttribute
+    @Suppress("UNCHECKED_CAST")
     fun binder() {
-        val old  = ControllerSupport.paramClassState.get()
-        ControllerSupport.paramClassState.set(Tuple(getService().getParamClass(),old))
+        val type = ResolvableType.forClass(javaClass).`as`(AbstractGenericController::class.java)
+                .getGeneric()
+                .resolve()!! as Class<out Param>
+        val old = ControllerSupport.paramClassState.get()
+        if (Modifier.isAbstract(type.modifiers)) {
+            ControllerSupport.paramClassState.set(Tuple(type, old))
+        } else {
+            // 否则不需要处理 !!!
+            ControllerSupport.paramClassState.set(Tuple(null, old))
+        }
     }
 
 

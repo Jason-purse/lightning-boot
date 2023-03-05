@@ -10,6 +10,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemp
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity;
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.AbstractCrudService;
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param;
+import com.jianyue.lightning.framework.web.method.argument.context.MethodArgumentContext;
 import com.jianyue.lightning.framework.web.method.argument.resolver.*;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,45 +102,45 @@ public class CrudControllerBootTests {
                 return Mockito.mock(MyService.class);
             }
 
-            @Bean
-            public FactoryBasedHandlerMethodArgumentResolverConfigurer configurer() {
-                return new FactoryBasedHandlerMethodArgumentResolverConfigurer() {
-                    @Override
-                    public void configMethodArgumentResolver(FactoryBasedHandlerMethodArgumentResolver methodArgumentResolver) {
-                        methodArgumentResolver.addArgumentResolverHandlers(new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
-                                Param.class,
-                                new FactoryBasedHMArgumentResolverHandler() {
-                                    @Override
-                                    public Object get(MethodArgumentContext value) throws Exception {
-                                        String type = value.getRequest().getParameter("type");
-                                        MyParam myParam = new MyParam();
-                                        WebDataBinder binder = value.getBinderFactory().createBinder(value.getRequest(), myParam, "");
-                                        binder.bind(new MutablePropertyValues(value.getRequest().getParameterMap()));
-
-                                        if(type.equals("province")) {
-                                            return new MyParam() {{
-                                                myParam.setOrigin("app");
-                                            }};
-
-
-                                        }
-                                        else {
-                                            return new MyParam() {{
-                                              myParam.setOrigin("invalid-origin");
-                                            }};
-                                        }
-                                    }
-                                },
-                                new Predicate<MethodParameter>() {
-                                    @Override
-                                    public boolean test(MethodParameter methodParameter) {
-                                        return true;
-                                    }
-                                }
-                        ));
-                    }
-                };
-            }
+//            @Bean
+//            public FactoryBasedHandlerMethodArgumentResolverConfigurer configurer() {
+//                return new FactoryBasedHandlerMethodArgumentResolverConfigurer() {
+//                    @Override
+//                    public void configMethodArgumentResolver(FactoryBasedHandlerMethodArgumentResolver methodArgumentResolver) {
+//                        methodArgumentResolver.addArgumentResolverHandlers(new DefaultFactoryBasedHMArgumentResolverHandlerProvider<>(
+//                                Param.class,
+//                                new FactoryBasedHMArgumentResolverHandler() {
+//                                    @Override
+//                                    public Object get(MethodArgumentContext value) throws Exception {
+//                                        String type = value.getRequest().getParameter("type");
+//                                        MyParam myParam = new MyParam();
+//                                        WebDataBinder binder = value.getBinderFactory().createBinder(value.getRequest(), myParam, "");
+//                                        binder.bind(new MutablePropertyValues(value.getRequest().getParameterMap()));
+//
+//                                        if(type.equals("province")) {
+//                                            return new MyParam() {{
+//                                                myParam.setOrigin("app");
+//                                            }};
+//
+//
+//                                        }
+//                                        else {
+//                                            return new MyParam() {{
+//                                              myParam.setOrigin("invalid-origin");
+//                                            }};
+//                                        }
+//                                    }
+//                                },
+//                                new Predicate<MethodParameter>() {
+//                                    @Override
+//                                    public boolean test(MethodParameter methodParameter) {
+//                                        return true;
+//                                    }
+//                                }
+//                        ));
+//                    }
+//                };
+//            }
         }
 
         @Configuration

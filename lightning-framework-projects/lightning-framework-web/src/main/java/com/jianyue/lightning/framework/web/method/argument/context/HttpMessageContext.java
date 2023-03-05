@@ -1,4 +1,4 @@
-package com.jianyue.lightning.framework.web.method.argument.resolver;
+package com.jianyue.lightning.framework.web.method.argument.context;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
