@@ -92,6 +92,22 @@ public class ElvisUtil {
         return null;
     }
 
+    public static <T> void isEmptyConsumer(T target,NOArgConsumer consumer) {
+        if(!ObjectUtils.isEmpty(target)) {
+            Objects.requireNonNull(consumer,"consumer must not be null!")
+                    .accept();
+        }
+    }
+
+
+    public static <T,S> S isEmptySupplier(T target, Supplier<S> function) {
+        if(!ObjectUtils.isEmpty(target)) {
+            return Objects.requireNonNull(function,"function must not be null!")
+                    .get();
+        }
+        return null;
+    }
+
 
 
     public static <S> S getOrDefault(S source,Supplier<S> targetSupplier) {
