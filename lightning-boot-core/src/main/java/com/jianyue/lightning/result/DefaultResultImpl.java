@@ -1,9 +1,14 @@
 package com.jianyue.lightning.result;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
+import java.beans.ConstructorProperties;
 import java.util.List;
 
+@ToString
 public class DefaultResultImpl<T> implements Result<T> {
 
     private final Integer code;
@@ -16,7 +21,11 @@ public class DefaultResultImpl<T> implements Result<T> {
     @Nullable
     private final T result;
 
-    public DefaultResultImpl(Integer code, String message, @Nullable List<T> results, @Nullable T result) {
+
+    @JsonCreator
+    public DefaultResultImpl(@JsonProperty("code") Integer code, @JsonProperty("message") String message,
+                             @JsonProperty("results") @Nullable List<T> results,
+                             @JsonProperty("result") @Nullable T result) {
         this.results = results;
         this.result = result;
         this.code = code;
