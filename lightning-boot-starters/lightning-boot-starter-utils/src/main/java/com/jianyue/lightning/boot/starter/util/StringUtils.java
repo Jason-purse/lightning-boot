@@ -7,6 +7,5 @@ public class StringUtils {
 
     public static String normalize(String path, boolean needLeaf) {
         return "/" + org.springframework.util.StringUtils.trimTrailingCharacter(org.springframework.util.StringUtils.trimLeadingCharacter(path, '/'), '/') + (needLeaf ? "/" : "");
-
     }
 }
