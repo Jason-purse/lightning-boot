@@ -302,6 +302,14 @@ public class JsonUtil {
     }
 
     /**
+     * 创建一个参数化类型 .
+     * @param typeReference typeReference
+     */
+    public <R> JavaType createJavaType(@NotNull TypeReference<R> typeReference) {
+        return objectMapper.getTypeFactory().constructType(typeReference);
+    }
+
+    /**
      * 创建一个参数化类型
      */
     @NotNull

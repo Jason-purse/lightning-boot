@@ -126,6 +126,23 @@ public class LightningOkHttpClient {
         throw DefaultApplicationException.of(data.getCode(),data.getMessage());
     }
 
+    public <T> T getResultForGet(String param, String path, TypeReference<T> targetClazz) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .get()
+                .build();
+        LightningResponse lightningResponse = this.execute(request);
+        String responseBody = lightningResponse.getBody();
+        final Result<T> data = JsonUtil.getDefaultJsonUtil().fromJson(responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(), JsonUtil.getDefaultJsonUtil().createJavaType(targetClazz)));
+        // 都看作 success
+        if (data.getCode() >= 200 && data.getCode() < 300) {
+            return data.getResult();
+        }
+        throw DefaultApplicationException.of(data.getCode(),data.getMessage());
+    }
+
+
 
     /**
      * Get 数组方法统一返回List对象
