@@ -3,6 +3,7 @@ package com.jianyue.lightning.client;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jianyue.lightning.exception.DefaultApplicationException;
 import com.jianyue.lightning.result.Result;
@@ -167,10 +168,18 @@ public class LightningOkHttpClient {
         throw DefaultApplicationException.of(result.getCode(),result.getMessage());
     }
 
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, Class<T> javaType) {
+        return getResultForJsonPost(o,path,headers,JsonUtil.getDefaultJsonUtil().createJavaType(javaType));
+    }
+
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, TypeReference<T> javaType) {
+        return getResultForJsonPost(o,path,headers,JsonUtil.getDefaultJsonUtil().createJavaType(javaType));
+    }
+
     /**
      * Post 返回对象
      */
-    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, Class<? extends T> clazz) {
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, JavaType javaType) {
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path)).newBuilder();
 
         MediaType json = MediaType.parse("application/json; charset=utf-8");
@@ -191,7 +200,7 @@ public class LightningOkHttpClient {
         Result<T> result =
                 JsonUtil.getDefaultJsonUtil().fromJson(
                         responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
-                                clazz)
+                                javaType)
                 );
 
         if (result.getCode() >= 200 && result.getCode() < 300) {
