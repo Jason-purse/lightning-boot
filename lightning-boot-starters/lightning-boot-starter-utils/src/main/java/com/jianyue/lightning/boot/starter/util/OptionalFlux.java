@@ -160,6 +160,11 @@ public class OptionalFlux<S> {
         return new OptionalFlux<>(this.value.map(function));
     }
 
+    public <T> OptionalFlux<T> flatMap(Function<S,Optional<T>> function) {
+        Objects.requireNonNull(function);
+        return new OptionalFlux<>(this.value.flatMap(function));
+    }
+
     /**
      * // switch map (三元表达式 推断)
      *
@@ -174,7 +179,7 @@ public class OptionalFlux<S> {
         Objects.requireNonNull(supplier);
         return this.map(function).orElse(supplier);
     }
-
+    
 
     /**
      * 统一返回结果!
