@@ -13,7 +13,7 @@ public class ClassUtil {
             return aClass.getPackageName();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("can't find package name of  the application class !!!");
+            throw new RuntimeException("can't find package name of  the application class[" + mainApplicationClass +  "] !!!");
         }
     }
 

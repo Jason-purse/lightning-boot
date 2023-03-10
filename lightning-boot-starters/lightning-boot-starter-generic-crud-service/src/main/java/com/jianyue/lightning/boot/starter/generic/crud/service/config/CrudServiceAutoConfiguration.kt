@@ -35,8 +35,6 @@ class CrudServiceAutoConfiguration(private val properties: GenericCrudProperties
         val paramScanPages = ElvisUtil.acquireNotNullList_Empty(properties.paramScanPages).run {
             HashSet(this).apply {
                 add(ClassUtil.getPackageNameForClass(webProperties.mainApplicationClass))
-                // 兜底,如果它给了一个不正确的路径 ..
-                add(ClassUtil.getPackageNameForClass(webProperties.defaultMainApplicationClass))
             }
         }
         return ParamHandlerMethodArgumentResolver(paramScanPages);

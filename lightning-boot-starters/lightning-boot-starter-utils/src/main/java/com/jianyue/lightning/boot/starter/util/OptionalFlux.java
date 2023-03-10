@@ -166,6 +166,21 @@ public class OptionalFlux<S> {
     }
 
     /**
+     * 直接替换 !!!
+     */
+    public <T> OptionalFlux<T> enforceTo(Supplier<T> supplier) {
+        return OptionalFlux.of(supplier.get());
+    }
+
+    /**
+     * 直接替换 !!!
+     */
+    public <T> OptionalFlux<T> enforceTo(T target) {
+        return OptionalFlux.of(target);
+    }
+
+
+    /**
      * // switch map (三元表达式 推断)
      *
      * @param function if true exec

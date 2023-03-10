@@ -28,6 +28,6 @@ public abstract class AbstractApplicationException extends LightningException {
 
     @Override
     public String toString() {
-        return "application exception: code = " + code + ", message" + getMessage();
+        return "application exception: code = " + code + ", message= " + getMessage();
     }
 }

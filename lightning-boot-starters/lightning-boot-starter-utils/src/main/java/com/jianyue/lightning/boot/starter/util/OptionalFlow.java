@@ -126,6 +126,13 @@ public class OptionalFlow<S> {
         return new OptionalFlow<>(this.value.map(function));
     }
 
+    /**
+     * 直接替换 !!!
+     */
+    public <T> OptionalFlux<T> enforceTo(Supplier<T> supplier) {
+        return OptionalFlux.of(supplier.get());
+    }
+
 
     /**
      * 统一返回结果!
@@ -146,107 +153,118 @@ public class OptionalFlow<S> {
     public S getOrDefault(S target) {
         return value.orElse(target);
     }
-    
-    
+
+
     // ------------------------------- if-else -------------------------------------------------------------------------
+
     /**
      * 根据之前的值和期待值进行比较
+     *
      * @param expectValue 期待值
-     * @param tConsumer true
-     * @param fConsumer false
-     * @param <T> 类型
+     * @param tConsumer   true
+     * @param fConsumer   false
+     * @param <T>         类型
      * @return 表达式
      */
     public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable Consumer<T> tConsumer, @Nullable Consumer<T> fConsumer) {
-        return value -> switchFunc((ele) -> value != null && value.equals(expectValue),tConsumer,fConsumer).accept(value);
+        return value -> switchFunc((ele) -> value != null && value.equals(expectValue), tConsumer, fConsumer).accept(value);
     }
+
     // true operation / false operation
     public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable NOArgConsumer tConsumer, @Nullable NOArgConsumer fConsumer) {
-        return value -> switchFunc((ele) -> value != null && value.equals(expectValue),tConsumer,fConsumer).accept(value);
+        return value -> switchFunc((ele) -> value != null && value.equals(expectValue), tConsumer, fConsumer).accept(value);
     }
+
     // true consumer / false operation
-    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue,@Nullable Consumer<T> tConsumer,@Nullable NOArgConsumer fConsumer) {
-        return value -> switchFunc((ele) -> value != null &&  value.equals(expectValue),tConsumer,fConsumer).accept(value);
+    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable Consumer<T> tConsumer, @Nullable NOArgConsumer fConsumer) {
+        return value -> switchFunc((ele) -> value != null && value.equals(expectValue), tConsumer, fConsumer).accept(value);
     }
+
     // true consumer / false none
-    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue,@Nullable Consumer<T> tConsumer) {
-        return value -> switchFunc(ele -> value != null && value.equals(expectValue),tConsumer,(NOArgConsumer)null).accept(value);
+    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable Consumer<T> tConsumer) {
+        return value -> switchFunc(ele -> value != null && value.equals(expectValue), tConsumer, (NOArgConsumer) null).accept(value);
     }
+
     // true operation / false none
-    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue,@Nullable NOArgConsumer tConsumer) {
-        return value -> switchFunc(ele -> value != null && value.equals(expectValue),tConsumer, null).accept(value);
+    public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable NOArgConsumer tConsumer) {
+        return value -> switchFunc(ele -> value != null && value.equals(expectValue), tConsumer, null).accept(value);
     }
+
     // true operation / false consumer
     public static <T> Consumer<T> switchEqualsFunc(@Nullable T expectValue, @Nullable NOArgConsumer tConsumer, @Nullable Consumer<T> fConsumer) {
-        return value -> switchFunc((ele) -> value != null && value.equals(expectValue),tConsumer != null ? (ele) -> tConsumer.accept() : null,fConsumer).accept(value);
+        return value -> switchFunc((ele) -> value != null && value.equals(expectValue), tConsumer != null ? (ele) -> tConsumer.accept() : null, fConsumer).accept(value);
     }
 
     // true consumer / false consumer
     public static <T> Consumer<T> switchFunc(Predicate<T> predicate, @Nullable Consumer<T> tConsumer, @Nullable Consumer<T> fConsumer) {
         return value -> {
             if (predicate.test(value)) {
-                if(tConsumer != null) {
+                if (tConsumer != null) {
                     tConsumer.accept(value);
                 }
-            }
-            else {
-                if(fConsumer != null) {
+            } else {
+                if (fConsumer != null) {
                     fConsumer.accept(value);
                 }
             }
         };
     }
+
     // 根据条件消费..
     // pre -> true consumer / false operation
-    public static <T> Consumer<T> switchFunc(Predicate<T> predicate,@Nullable Consumer<T> tConsumer,@Nullable NOArgConsumer fConsumer) {
+    public static <T> Consumer<T> switchFunc(Predicate<T> predicate, @Nullable Consumer<T> tConsumer, @Nullable NOArgConsumer fConsumer) {
         return switchFunc(predicate, tConsumer, t -> {
-            if(fConsumer != null) {
+            if (fConsumer != null) {
                 fConsumer.accept();
             }
         });
     }
+
     // pre -> true consumer / false none
-    public static <T> Consumer<T> switchFunc(Predicate<T> predicate,@Nullable Consumer<T> tConsumer) {
-        return switchFunc(predicate, tConsumer, t -> {});
+    public static <T> Consumer<T> switchFunc(Predicate<T> predicate, @Nullable Consumer<T> tConsumer) {
+        return switchFunc(predicate, tConsumer, t -> {
+        });
     }
+
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate,Function<T,R> trFunction,Function<T,R> faFunction) {
+    public static <T, R> Function<T, R> switchMapFunc(Predicate<T> predicate, Function<T, R> trFunction, Function<T, R> faFunction) {
         return value -> predicate.test(value) ? trFunction.apply(value) : faFunction.apply(value);
     }
+
     // equals map
-    public static <T,R> Function<T,R> switchEqualsMapFunc(T expectValue,Function<T,R> trFunction,Function<T,R> faFunction) {
+    public static <T, R> Function<T, R> switchEqualsMapFunc(T expectValue, Function<T, R> trFunction, Function<T, R> faFunction) {
         return value -> value.equals(expectValue) ? trFunction.apply(value) : faFunction.apply(value);
     }
+
     // pre -> true operation / false  operation..
     public static <T> Consumer<T> switchFunc(Predicate<T> predicate, @Nullable NOArgConsumer tConsumer, @Nullable NOArgConsumer fConsumer) {
         return value -> {
             if (predicate.test(value)) {
-                if(tConsumer != null) {
+                if (tConsumer != null) {
                     tConsumer.accept();
                 }
-            }
-            else {
-                if(fConsumer != null) {
+            } else {
+                if (fConsumer != null) {
                     fConsumer.accept();
                 }
             }
         };
     }
+
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Function<T,R> trFunction, Supplier<R> fafunction) {
-        return switchMapFunc(predicate,trFunction,t -> fafunction.get());
+    public static <T, R> Function<T, R> switchMapFunc(Predicate<T> predicate, Function<T, R> trFunction, Supplier<R> fafunction) {
+        return switchMapFunc(predicate, trFunction, t -> fafunction.get());
     }
 
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, Supplier<R> trFunction, Supplier<R> fafunction) {
-        return switchMapFunc(predicate,it -> trFunction.get(),t -> fafunction.get());
+    public static <T, R> Function<T, R> switchMapFunc(Predicate<T> predicate, Supplier<R> trFunction, Supplier<R> fafunction) {
+        return switchMapFunc(predicate, it -> trFunction.get(), t -> fafunction.get());
     }
 
     // 根据条件map
-    public static <T,R> Function<T,R> switchMapFunc(Predicate<T> predicate, R trResult, R frResult) {
-        return switchMapFunc(predicate,it -> trResult,t -> frResult);
+    public static <T, R> Function<T, R> switchMapFunc(Predicate<T> predicate, R trResult, R frResult) {
+        return switchMapFunc(predicate, it -> trResult, t -> frResult);
     }
-
 
 
     @Override
@@ -263,6 +281,6 @@ public class OptionalFlow<S> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this,value);
+        return Objects.hash(this, value);
     }
 }

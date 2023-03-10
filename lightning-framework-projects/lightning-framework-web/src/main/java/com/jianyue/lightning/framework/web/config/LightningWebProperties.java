@@ -13,6 +13,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "lightning.framework.web")
 public class LightningWebProperties {
 
+    // junit 单元测试可能会产生奇怪的命令 com.intellij.rt.junit.JUnitStarter -ideVersion5 -junit5 com.generatera.usercenter.authorization.proxy.test.AuthorizationProxyApplicationTests,test
     private final String defaultMainApplicationClass = System.getProperty("sun.java.command");
     /**
      * 可以配置
