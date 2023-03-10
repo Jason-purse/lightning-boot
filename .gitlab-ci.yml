@@ -1,0 +1,21 @@
+image: registry.safone.ltd:1443/cqsafone/maven:3.6.3-openjdk-17
+
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode -P gitlab-runner"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dmaven.test.skip=true"
+
+cache:
+  paths:
+  - .m2/repository/
+
+stages:
+- build
+
+build:
+  only:
+    - master
+  tags:
+  - k8s-runner-dev
+  stage: build
+  script:
+  - mvn clean deploy -U $MAVEN_CLI_OPTS
