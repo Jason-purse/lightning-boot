@@ -1,15 +1,13 @@
 package com.jianyue.lightning.boot.starter.util;
 
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * @author JASONJ
@@ -24,8 +22,6 @@ public class OptionalFlux<S> {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<S> value;
-
-
 
 
     /**
@@ -60,6 +56,18 @@ public class OptionalFlux<S> {
         return OptionalFlux.of(Optional.empty());
     }
 
+    /**
+     * string的快捷方式 ...
+     */
+    public static OptionalFlux<String> stringOrNull(@Nullable String str) {
+        return new OptionalFlux<>(ElvisUtil.stringElvisOrNull(str));
+    }
+
+    public static OptionalFlux<String> string(@Nullable String str, @NotNull String defaultStr) {
+        return new OptionalFlux<>(ElvisUtil.stringElvis(str, defaultStr));
+    }
+
+
     public Optional<S> getValue() {
         return this.value;
     }
@@ -88,16 +96,16 @@ public class OptionalFlux<S> {
         return this.map(targetClass::cast).orElse(OptionalFlux.empty());
     }
 
-    public  OptionalFlux<S> existsForThrowEx(RuntimeException ex) {
-        if(this.isPresent()) {
-            throw  ex;
+    public OptionalFlux<S> existsForThrowEx(RuntimeException ex) {
+        if (this.isPresent()) {
+            throw ex;
         }
         return this;
     }
 
-    public OptionalFlux<S> combine(OptionalFlux<S> other, BiFunction<S,S,S> handler) {
-        if(other.isPresent() && this.isPresent()) {
-            return OptionalFlux.of(handler.apply(getResult(),other.getResult()));
+    public OptionalFlux<S> combine(OptionalFlux<S> other, BiFunction<S, S, S> handler) {
+        if (other.isPresent() && this.isPresent()) {
+            return OptionalFlux.of(handler.apply(getResult(), other.getResult()));
         }
         return this.isPresent() ? this : other;
     }
@@ -106,7 +114,6 @@ public class OptionalFlux<S> {
     public boolean isPresent() {
         return this.value.isPresent();
     }
-
 
 
     /**
@@ -129,12 +136,13 @@ public class OptionalFlux<S> {
         return this;
     }
 
-    public OptionalFlux<S> orElse(OptionalFlux<S> target){
+    public OptionalFlux<S> orElse(OptionalFlux<S> target) {
         if (!isPresent()) {
             return target;
         }
         return this;
     }
+
 
     /**
      * 无参消费者
@@ -160,7 +168,7 @@ public class OptionalFlux<S> {
         return new OptionalFlux<>(this.value.map(function));
     }
 
-    public <T> OptionalFlux<T> flatMap(Function<S,Optional<T>> function) {
+    public <T> OptionalFlux<T> flatMap(Function<S, Optional<T>> function) {
         Objects.requireNonNull(function);
         return new OptionalFlux<>(this.value.flatMap(function));
     }
@@ -179,10 +187,31 @@ public class OptionalFlux<S> {
         return OptionalFlux.of(target);
     }
 
+    /**
+     * 如果存在,否则 empty
+     * 有时候不关心 上一个值是什么,只想它成立的情况下,跳入下一个目标 ..
+     *
+     * @param target 目标对象 ..
+     * @param <T>    目标类型
+     * @return empty or optionalFlux<T>
+     */
+    public <T> OptionalFlux<T> to(T target) {
+        return this.map(ele -> target);
+    }
+
+    public <T> OptionalFlux<T> to(OptionalFlux<T> target) {
+        return this.map(ele -> target.getResult());
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public <T> OptionalFlux<T> to(Optional<T> target) {
+        return this.flatMap(ele -> target);
+    }
 
     /**
      * // switch map (三元表达式 推断)
      *
+     * 如果存在,则,否则,则 ...
      * @param function if true exec
      * @param supplier if false exec
      * @param <T>      t type
@@ -194,7 +223,23 @@ public class OptionalFlux<S> {
         Objects.requireNonNull(supplier);
         return this.map(function).orElse(supplier);
     }
-    
+
+
+    // 针对表达式进行 if-else 判断 ..
+
+    public <T> OptionalFlux<T> ifTrueForSwitchMap(Predicate<S> predicate, Function<S, T> trFunction) {
+        Objects.requireNonNull(predicate);
+        Objects.requireNonNull(trFunction);
+        // 直接map ... 即可 ..
+        return this.map(SwitchUtil.switchMapFuncForTrue(predicate, trFunction));
+    }
+
+    public <T> OptionalFlux<T> ifFalseForSwitchMap(Predicate<S> predicate,Function<S,T> frFunction) {
+        Objects.requireNonNull(predicate);
+        Objects.requireNonNull(frFunction);
+        return this.map(SwitchUtil.switchMapFuncForFalse(predicate,frFunction));
+    }
+
 
     /**
      * 统一返回结果!
@@ -251,7 +296,7 @@ public class OptionalFlux<S> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this,value);
+        return Objects.hash(this, value);
     }
 
     /**

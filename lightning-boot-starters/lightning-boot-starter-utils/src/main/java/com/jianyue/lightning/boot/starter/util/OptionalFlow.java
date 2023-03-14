@@ -8,15 +8,21 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
+/**
+ * @author FLJ
+ * @date 2023/3/14
+ * @time 11:13
+ *
+ */
 public class OptionalFlow<S> {
-
 
     /**
      * hold value
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<S> value;
+
+
 
 
     /**
