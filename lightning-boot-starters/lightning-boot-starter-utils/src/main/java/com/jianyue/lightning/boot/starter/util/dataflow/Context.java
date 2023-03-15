@@ -94,6 +94,13 @@ public interface Context<T, R> {
         return new InternalContext<>(in, isLazy);
     }
 
+    static <R> Context<Void,R> noInputOf(boolean isLazy) {
+        return new InternalContext<>(null,isLazy);
+    }
+
+    static <R> Context<Void,R> noInputOf() {
+        return new InternalContext<>(null,true);
+    }
 }
 
 @Slf4j

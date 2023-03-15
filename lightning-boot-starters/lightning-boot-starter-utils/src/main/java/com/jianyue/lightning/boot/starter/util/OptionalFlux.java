@@ -56,6 +56,10 @@ public class OptionalFlux<S> {
         return OptionalFlux.of(Optional.empty());
     }
 
+    public static OptionalFlux<String> stringEmpty() {
+        return OptionalFlux.empty();
+    }
+
     /**
      * string的快捷方式 ...
      */
@@ -65,6 +69,11 @@ public class OptionalFlux<S> {
 
     public static OptionalFlux<String> string(@Nullable String str, @NotNull String defaultStr) {
         return new OptionalFlux<>(ElvisUtil.stringElvis(str, defaultStr));
+    }
+
+
+    public static OptionalFlux<String> string(@NotNull String str) {
+        return stringOrNull(str);
     }
 
 
@@ -129,6 +138,14 @@ public class OptionalFlux<S> {
         return this;
     }
 
+    public OptionalFlux<S> orElseFlatTo(Supplier<Optional<S>> supplier) {
+        return orElse(supplier.get());
+    }
+
+    public OptionalFlux<S> orElseFlattenTo(Supplier<OptionalFlux<S>> supplier) {
+        return orElse(supplier.get());
+    }
+
     public OptionalFlux<S> orElse(S target) {
         if (this.value.isEmpty()) {
             return OptionalFlux.of(target);
@@ -143,7 +160,13 @@ public class OptionalFlux<S> {
         return this;
     }
 
-
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public OptionalFlux<S> orElse(Optional<S> target) {
+        if (!isPresent()) {
+            return OptionalFlux.of(target);
+        }
+        return this;
+    }
     /**
      * 无参消费者
      *
@@ -153,6 +176,11 @@ public class OptionalFlux<S> {
         if (this.value.isEmpty()) {
             consumer.accept();
         }
+    }
+
+    public OptionalFlux<S> consumeNull(NOArgConsumer consumer) {
+        this.orElse(consumer);
+        return this;
     }
 
 
@@ -171,6 +199,12 @@ public class OptionalFlux<S> {
     public <T> OptionalFlux<T> flatMap(Function<S, Optional<T>> function) {
         Objects.requireNonNull(function);
         return new OptionalFlux<>(this.value.flatMap(function));
+    }
+
+
+    public <T> OptionalFlux<T> flattenMap(Function<S, OptionalFlux<T>> function) {
+        Objects.requireNonNull(function);
+        return new OptionalFlux<>(this.value.map(ele -> function.apply(ele).getResult()));
     }
 
     /**
@@ -208,10 +242,15 @@ public class OptionalFlux<S> {
         return this.flatMap(ele -> target);
     }
 
+    public OptionalFlux<S> toEmpty() {
+        return this.orElse(empty());
+    }
+
     /**
      * // switch map (三元表达式 推断)
-     *
+     * <p>
      * 如果存在,则,否则,则 ...
+     *
      * @param function if true exec
      * @param supplier if false exec
      * @param <T>      t type
@@ -226,7 +265,7 @@ public class OptionalFlux<S> {
 
 
     // 针对表达式进行 if-else 判断 ..
-
+    @Deprecated
     public <T> OptionalFlux<T> ifTrueForSwitchMap(Predicate<S> predicate, Function<S, T> trFunction) {
         Objects.requireNonNull(predicate);
         Objects.requireNonNull(trFunction);
@@ -234,10 +273,25 @@ public class OptionalFlux<S> {
         return this.map(SwitchUtil.switchMapFuncForTrue(predicate, trFunction));
     }
 
-    public <T> OptionalFlux<T> ifFalseForSwitchMap(Predicate<S> predicate,Function<S,T> frFunction) {
+    @Deprecated
+    public <T> OptionalFlux<T> ifFalseForSwitchMap(Predicate<S> predicate, Function<S, T> frFunction) {
         Objects.requireNonNull(predicate);
         Objects.requireNonNull(frFunction);
-        return this.map(SwitchUtil.switchMapFuncForFalse(predicate,frFunction));
+        return this.map(SwitchUtil.switchMapFuncForFalse(predicate, frFunction));
+    }
+
+
+    public <T> OptionalFlux<T> switchMapIfTrueOrNull(Predicate<S> predicate, Function<S, T> trFunction) {
+        Objects.requireNonNull(predicate);
+        Objects.requireNonNull(trFunction);
+        // 直接map ... 即可 ..
+        return this.map(SwitchUtil.switchMapFuncForTrue(predicate, trFunction));
+    }
+
+    public <T> OptionalFlux<T> switchMapIfFalseOrNull(Predicate<S> predicate, Function<S, T> frFunction) {
+        Objects.requireNonNull(predicate);
+        Objects.requireNonNull(frFunction);
+        return this.map(SwitchUtil.switchMapFuncForFalse(predicate, frFunction));
     }
 
 
@@ -249,8 +303,8 @@ public class OptionalFlux<S> {
      * if return null , may not call ifPresent  or OrElse or return result is null!
      */
     @SuppressWarnings("unchecked")
-    public <T> T getResult() {
-        return (T) this.value.orElse(null);
+    public S getResult() {
+        return this.value.orElse(null);
     }
 
 
