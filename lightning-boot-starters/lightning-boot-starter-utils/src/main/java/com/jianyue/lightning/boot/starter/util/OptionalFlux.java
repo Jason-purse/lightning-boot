@@ -173,6 +173,12 @@ public class OptionalFlux<S> {
         return new OptionalFlux<>(this.value.flatMap(function));
     }
 
+
+    public <T> OptionalFlux<T> flattenMap(Function<S, OptionalFlux<T>> function) {
+        Objects.requireNonNull(function);
+        return new OptionalFlux<>(this.value.map(ele -> function.apply(ele).getResult()));
+    }
+
     /**
      * 直接替换 !!!
      */
