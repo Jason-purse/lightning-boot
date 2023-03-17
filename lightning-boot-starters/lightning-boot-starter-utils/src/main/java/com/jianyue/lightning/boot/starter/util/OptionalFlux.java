@@ -173,13 +173,6 @@ public class OptionalFlux<S> {
         return this;
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public OptionalFlux<S> orElse(Optional<S> target) {
-        if (!isPresent()) {
-            return OptionalFlux.of(target);
-        }
-        return this;
-    }
     /**
      * 无参消费者
      *
