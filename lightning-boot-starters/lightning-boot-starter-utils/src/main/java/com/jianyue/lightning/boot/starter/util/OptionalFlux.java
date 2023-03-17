@@ -17,6 +17,9 @@ import java.util.function.*;
 
 public class OptionalFlux<S> {
 
+    public static OptionalFlux<?> Return = new OptionalFlux<>(null);
+
+
     /**
      * hold value
      */
@@ -153,6 +156,16 @@ public class OptionalFlux<S> {
         return this;
     }
 
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public OptionalFlux<S> orElse(Optional<S> target) {
+        if (this.value.isEmpty()) {
+            return OptionalFlux.of(target);
+        }
+        return this;
+    }
+
+
     public OptionalFlux<S> orElse(OptionalFlux<S> target) {
         if (!isPresent()) {
             return target;
@@ -245,6 +258,7 @@ public class OptionalFlux<S> {
     public OptionalFlux<S> toEmpty() {
         return this.orElse(empty());
     }
+
 
     /**
      * // switch map (三元表达式 推断)
