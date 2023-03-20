@@ -1,9 +1,9 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.service
 
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.AbstractConverterAdapter
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.BasedParamFreeEntityConverter
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.DefaultGenericConverterAdapter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.AbstractConverterAdapter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.BasedParamFreeEntityConverter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.DefaultGenericConverterAdapter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.EntityConverter
 import com.safone.order.service.model.order.verification.support.converters.QueryConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
+import org.springframework.util.Assert
 import java.lang.reflect.ParameterizedType
-import kotlin.math.log
 
 /**
  * @author FLJ
@@ -40,14 +40,20 @@ import kotlin.math.log
  * 这里的add / addOperations / save 没有强制要求需要query 来检查是否有对应的唯一性数据条件断言,这取决于业务 ..(其实最终业务就是各种converter,来决定转换出符合条件的query / entity) ..
  *
  * 其他的select / delete / *ById( 对null / noneQuery /IdQuery 进行了严格的控制),这与上面的三个操作相反,子类例如可以增强功能,例如传递null的时候,删除或者查询所有数据 ...
+ *
+ *
  */
-abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService<PARAM>,
+abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: DBTemplate?) : CrudService<PARAM>,
     ApplicationContextAware,
     DisposableBean {
 
 
-    @Autowired
-    private lateinit var dbTemplate: DBTemplate
+    private var dbTemplate: DBTemplate?
+
+    // 例如根据 ioc 容器进行 注入 !!!
+    constructor() : this(null) {
+
+    }
 
 
     // 只要符合java assignableFrom 以及 逻辑 assignableFrom 语义即可 ...
@@ -71,8 +77,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
 
 
     init {
-
-
+        this.dbTemplate = dbTemplate;
         // 解析目标类型
         ResolvableType.forType(this.javaClass)
             .`as`(AbstractCrudService::class.java)
@@ -137,42 +142,56 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
     }
 
 
-
-
     override fun addOperation(context: InputContext<PARAM>): CrudResult {
-
-        choiceQueryConverterAndInvoke(context)?.let {
-            if (it !is NoneQuery) {
-                val one = getDbTemplate().selectFirstOrNull(
-                    it,
-                    getEntityClass()
-                )
-                // 没有查到,可以正常新增
-                // for user
-                if (one.isNotNull()) {
-                    return CrudResult.error()
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this !is NoneQuery) {
+                    val one = getDbTemplate().selectFirstOrNull(
+                        this,
+                        getEntityClass()
+                    )
+                    // 没有查到,可以正常新增
+                    // for user
+                    if (one.isNotNull()) {
+                        return@executeByQuerySupport CrudResult.error()
+                    }
                 }
+
+                getDbTemplate().add(choiceEntityConverterAndInvoke(context).asNativeObject<Entity>().apply {
+                    logger.info("add operation invoke save fill !!!")
+                    // 回调
+                    saveFill();
+                })
+                CrudResult.success()
             }
         }
-
-        getDbTemplate().add(choiceEntityConverterAndInvoke(context).asNativeObject<Entity>().apply {
-            logger.info("add operation invoke save fill !!!")
-            // 回调
-            saveFill();
-        })
-        return CrudResult.success()
     }
 
 
-    protected fun choiceQueryConverterAndInvoke(context: InputContext<PARAM>): QuerySupport? {
+    private fun choiceQueryConverterAndInvoke(
+        context: InputContext<PARAM>,
+        action: QuerySupport.() -> CrudResult
+    ): CrudResult {
+
+        Assert.notNull(dbTemplate,"dbTemplate must not be null !!!")
+
         if (queryConverters.support(context.dataFlow)) {
-            queryConverters.convert(context.dataFlow).let {
-                if (it.isNotNull()) {
-                    return it!!
-                }
+            return invokeByQueryConverter(context, action);
+        }
+
+        throw IllegalArgumentException("no query converter can handle the param  !!!!")
+    }
+
+    protected open fun invokeByQueryConverter(
+        context: InputContext<PARAM>,
+        action: QuerySupport.() -> CrudResult
+    ): CrudResult {
+        queryConverters.convert(context.dataFlow)?.let {
+            if (it.isNotNull()) {
+                return action.invoke(it)
             }
         }
-        return null
+        throw IllegalArgumentException("no query converter can handle the param  !!!!")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -187,38 +206,48 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
         throw IllegalArgumentException("can't convert param to entity !!!")
     }
 
-    protected fun choiceQueryForListConverterAndInvoke(context: InputContext<List<PARAM>>): QuerySupport? {
+    private fun choiceQueryForListConverterAndInvoke(
+        context: InputContext<List<PARAM>>,
+        action: QuerySupport.() -> CrudResult
+    ): CrudResult {
         if (queryForListConverters.support(context.dataFlow)) {
-            queryForListConverters.convert(context.dataFlow).let {
-                if (it.isNotNull()) {
-                    return it!!
-                }
+            return invokeByQueryForListConverter(context, action)
+        }
+        throw IllegalArgumentException("no query converter can handle the param  !!!!")
+    }
+
+    protected open fun invokeByQueryForListConverter(
+        context: InputContext<List<PARAM>>,
+        action: QuerySupport.() -> CrudResult
+    ): CrudResult {
+        queryForListConverters.convert(context.dataFlow)?.let {
+            if (it.isNotNull()) {
+                return action.invoke(it)
             }
         }
-        return null
+        throw IllegalArgumentException("no query converter can handle the param  !!!!")
     }
 
 
     override fun addOperations(context: InputContext<List<PARAM>>): CrudResult {
-
-        choiceQueryForListConverterAndInvoke(context)?.let {
-            if (it !is NoneQuery) {
-                if (!getDbTemplate().countBy(
-                        it,
-                        getEntityClass()
-                    ).isNull()
-                ) {
+        return choiceQueryForListConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this !is NoneQuery) {
+                    // 查询有数据的情况下,则
                     // for user
-                    return CrudResult.error()
+                    if (getDbTemplate().countBy(this, getEntityClass()).isNotNull()) {
+                        return@executeByQuerySupport CrudResult.dataConflict()
+                    }
                 }
+
+                // 批量,这里按道理来说,我们应该判断的,但是也可以省略掉 ..
+                // 目前 mongo 我们并没有配置唯一性索引,所以如果出错,也可以交给数据库抛出异常,集体出错
+                logger.info("add operation invoke batch save fill !!!")
+                getDbTemplate().addList(choiceEntityForListConverterAndInvoke(context).onEach { it.saveFill() })
+                return@executeByQuerySupport CrudResult.success()
             }
         }
 
-        // 批量,这里按道理来说,我们应该判断的,但是也可以省略掉 ..
-        // 目前 mongo 我们并没有配置唯一性索引,所以如果出错,也可以交给数据库抛出异常,集体出错
-        logger.info("add operation invoke batch save fill !!!")
-        getDbTemplate().addList(choiceEntityForListConverterAndInvoke(context).onEach { it.saveFill() })
-        return CrudResult.success()
     }
 
 
@@ -227,93 +256,105 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
     }
 
     override fun saveOperation(context: InputContext<PARAM>): CrudResult {
-        choiceQueryConverterAndInvoke(context)?.let {
-            if (it !is NoneQuery) {
-                context.run {
-                    val one: Entity? =
-                        getDbTemplate().selectFirstOrNull(
-                            it,
-                            getEntityClass()
-                        )
-                    if (one.isNull()) {
-                        return CrudResult.noData()
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                // 不允许对所有数据进行操作 !!!
+                if (this !is NoneQuery) {
+                    context.let {
+                        val one: Entity? =
+                            getDbTemplate().selectFirstOrNull(
+                                this,
+                                getEntityClass()
+                            )
+
+                        if (one.isNull()) {
+                            return@executeByQuerySupport CrudResult.noData()
+                        }
+
+                        BeanUtils.updateProperties(choiceEntityConverterAndInvoke(context), one!!)
+                        getDbTemplate().update(one.apply { updateFill() })
+                        return@executeByQuerySupport CrudResult.success(one)
                     }
-
-                    BeanUtils.updateProperties(choiceEntityConverterAndInvoke(context), one!!)
-
-                    getDbTemplate().update(one.apply { updateFill() })
-                    return CrudResult.success(one)
                 }
+                // for user
+                CrudResult.noData()
             }
         }
 
-        // for user
-        return CrudResult.noData()
     }
 
     override fun selectOperation(context: InputContext<PARAM>): CrudResult {
-        choiceQueryConverterAndInvoke(context).let {
-            if (baseQueryCriteriaAssert(it)) {
-                getDbTemplate().selectByComplex(it!!, getEntityClass()).run {
-                    return CrudResult.success(this)
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this !is NoneQuery) {
+                    getDbTemplate()
+                        .selectByComplex(this, getEntityClass()).run {
+                            return@executeByQuerySupport CrudResult.success(this)
+                        }
                 }
+                return@executeByQuerySupport CrudResult.error("select must have one query for get data,and can't use noneQuery !!!")
             }
         }
-        throw IllegalArgumentException("select must have one query for get data,and can't use noneQuery !!!")
     }
 
     override fun deleteOperation(context: InputContext<PARAM>): CrudResult {
-        choiceQueryConverterAndInvoke(context).let {
-            if (baseQueryCriteriaAssert(it)) {
-                getDbTemplate().delete(it!!, getEntityClass())
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this !is NoneQuery) {
+                    getDbTemplate().delete(this, getEntityClass())
+                    return@executeByQuerySupport CrudResult.success()
+                }
+                return@executeByQuerySupport CrudResult.error("delete must have one query for delete data,and can't use noneQuery !!!")
             }
         }
-
-        throw IllegalArgumentException("delete must have one query for delete data,and can't use noneQuery !!!")
-    }
-
-    protected fun baseQueryCriteriaAssert(it: QuerySupport?): Boolean {
-        return it.isNotNull() && it !is NoneQuery
     }
 
     override fun selectOperationById(context: InputContext<PARAM>): CrudResult {
 
-        choiceQueryConverterAndInvoke(context).let {
-            if (byIdQueryCriteriaAssert(it)) {
-                getDbTemplate().selectById(it!!.asNativeObject(), getEntityClass()).run {
-                    if (isNull()) {
-                        return CrudResult.noData()
-                    } else {
-                        return CrudResult.success(this)
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this is IDQuerySupport) {
+                    getDbTemplate().selectById(this.asNativeObject(), getEntityClass()).run {
+                        if (isNull()) {
+                            return@executeByQuerySupport CrudResult.noData()
+                        } else {
+                            return@executeByQuerySupport CrudResult.success(this)
+                        }
                     }
                 }
+                return@executeByQuerySupport CrudResult.error("selectById must have one query for get data,and must use IdQuery !!!")
             }
         }
-
-        throw IllegalArgumentException("selectById must have one query for get data,and must use IdQuery !!!")
     }
 
     override fun deleteOperationById(context: InputContext<PARAM>): CrudResult {
-        choiceQueryConverterAndInvoke(context).let {
-            if (byIdQueryCriteriaAssert(it)) {
-                getDbTemplate().deleteById(it!!.asNativeObject(), getEntityClass())
-                return CrudResult.success()
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this is IDQuerySupport) {
+                    getDbTemplate().deleteById(this.asNativeObject(), getEntityClass())
+                    return@executeByQuerySupport CrudResult.success()
+                }
+                return@executeByQuerySupport CrudResult.error("deleteById must have one query for get data,and must use IdQuery !!!")
             }
         }
-
-        throw IllegalArgumentException("deleteById must have one query for get data,and must use IdQuery !!!")
     }
 
 
-    protected fun byIdQueryCriteriaAssert(it: QuerySupport?): Boolean {
-        return it.isNotNull() && it !is NoneQuery && it is IDQuerySupport
+    protected open fun executeByQuerySupport(querySupport: QuerySupport, action: QuerySupport.() -> CrudResult): CrudResult {
+        return action.invoke(querySupport)
     }
+
 
     override fun getDbTemplate(): DBTemplate {
-        return dbTemplate
+        return dbTemplate!!
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
+
+        if(dbTemplate == null) {
+            this. dbTemplate = applicationContext.getBean(DBTemplate::class.java)
+        }
+        Assert.notNull(dbTemplate,"dbTemplate must not be null !!!")
 
         // 使用spring 的自动装配能力,但是这些bean spring 不负责生命周期调用,所以我们需要负责
         applicationContext.autowireCapableBeanFactory.autowireBean(queryConverters);
@@ -338,8 +379,8 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
         if (entityConverters.getConverters().isEmpty()) {
             entityConverters.noSafeAddConverters(BasedParamFreeEntityConverter(paramClass, entityClass));
         }
-        logger.info("${this.javaClass.name} added queryConverters is {}",queryConverters.getConverters())
-        logger.info("${this.javaClass.name} added queryForListConverters is {}",queryForListConverters.getConverters())
+        logger.info("${this.javaClass.name} added queryConverters is {}", queryConverters.getConverters())
+        logger.info("${this.javaClass.name} added queryForListConverters is {}", queryForListConverters.getConverters())
         logger.info("${this.javaClass.name} added entityConverters is {}", entityConverters.getConverters());
     }
 
@@ -352,7 +393,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity> : CrudService
     /**
      * 具体生成目标Entity的class
      */
-    // 子类可以覆盖 ..
+// 子类可以覆盖 ..
     override fun getEntityClass(): Class<out Entity> {
         return entityClass
     }

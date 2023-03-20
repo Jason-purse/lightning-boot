@@ -1,7 +1,8 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.controller
 
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.ThreadLocalSupport
+import com.jianyue.lightning.boot.starter.util.ThreadLocalSupport
+import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 
 /**
  * @author FLJ
@@ -15,7 +16,7 @@ interface ControllerSupport {
         /**
          * 新的,旧的
          */
-        val paramClassState = ThreadLocalSupport.of<Tuple<Class<*>, Any>?>()
+        val paramClassState = ThreadLocalSupport.of<Tuple<Class<out Param>, Any>?>()
 
     }
 }

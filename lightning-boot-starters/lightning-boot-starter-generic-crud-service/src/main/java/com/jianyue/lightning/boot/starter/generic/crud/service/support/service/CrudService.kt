@@ -5,6 +5,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.En
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
+import org.jetbrains.annotations.NotNull
 
 /**
  * @author FLJ
@@ -36,17 +37,17 @@ interface CrudService<PARAM: Param> {
 
     fun selectOperation(context: InputContext<PARAM>): CrudResult
 
-    fun deleteOperation(context: InputContext<PARAM>): CrudResult
-
     fun selectOperationById(context: InputContext<PARAM>): CrudResult
+
+
+    fun deleteOperation(context: InputContext<PARAM>): CrudResult
 
     fun deleteOperationById(context: InputContext<PARAM>): CrudResult
 
-
     fun getDbTemplate(): DBTemplate
-
 
     fun getEntityClass(): Class<out Entity>
 
+    @NotNull
     fun getParamClass(): Class<out Param>
 }

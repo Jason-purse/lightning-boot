@@ -15,6 +15,7 @@ import java.lang.reflect.Type
  * 2. 使用Type
  *
  * 3. 当S 是一个集合泛型类,请使用List
+ *
  * @see com.jianyue.lightning.boot.starter.generic.crud.service.support.service.AbstractCrudService 或者重新实现自己的 CrudService ...
  *
  *

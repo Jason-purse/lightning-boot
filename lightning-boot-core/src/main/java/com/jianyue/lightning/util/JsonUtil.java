@@ -90,7 +90,7 @@ public class JsonUtil {
     }
 
 
-    private static JsonUtil withDefaultDateOfChina() {
+    public static JsonUtil withDefaultDateOfChina() {
 
         JsonUtil jsonUtil = new JsonUtil();
         jsonUtil.configureObjectMapper(objectMapper -> {
@@ -270,6 +270,21 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * 创建一个参数化类型
+     */
+    @NotNull
+    public <R> JavaType createJavaType(@NotNull Class<R> rawType) {
+        return objectMapper.getTypeFactory().constructType(rawType);
+    }
+
+    /**
+     * 创建一个参数化类型
+     */
+    @NotNull
+    public  JavaType createJavaType(@NotNull Type rawType) {
+        return objectMapper.getTypeFactory().constructType(rawType);
+    }
 
     /**
      * 创建一个参数化类型
@@ -299,6 +314,15 @@ public class JsonUtil {
     @NotNull
     public <R> JavaType createJavaType(@NotNull Class<R> rawType, @NotNull JavaType... parameterTypes) {
         return objectMapper.getTypeFactory().constructParametricType(rawType, parameterTypes);
+    }
+
+    /**
+     * 创建一个参数化类型 .
+     *
+     * @param typeReference typeReference
+     */
+    public <R> JavaType createJavaType(@NotNull TypeReference<R> typeReference) {
+        return objectMapper.getTypeFactory().constructType(typeReference);
     }
 
     /**

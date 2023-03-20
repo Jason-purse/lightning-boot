@@ -1,8 +1,14 @@
 package com.jianyue.lightning.boot.starter.util;
 
+import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple;
+import org.assertj.core.util.Lists;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,4 +51,15 @@ public class StreamUtil {
     public static <T> Function<Stream<List<T>>,List<T>> listStreamFlatMap() {
         return stream -> stream.flatMap(listFlatMap()).collect(Collectors.toList());
     }
+
+    /**
+     * 整体 toMap
+     * @param <T> T 类型
+     * @param <U> S 目标类型
+     * @return 目标类型集合
+     */
+    public static <T, K, U>  Function<List<T>,Map<K ,U>> listToMap(Function<T,K> keyMapper, Function<T,U> valueMapper) {
+         return list -> Stream.of(CollectionUtil.iterator(list)).collect(Collectors.toMap(keyMapper, valueMapper));
+    }
+
 }

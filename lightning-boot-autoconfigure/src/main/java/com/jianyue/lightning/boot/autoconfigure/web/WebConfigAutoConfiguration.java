@@ -3,25 +3,28 @@ package com.jianyue.lightning.boot.autoconfigure.web;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jianyue.lightning.boot.exception.feign.AbstractFeignApplicationException;
+import com.jianyue.lightning.framework.web.config.LightningWebConfigurations;
+import com.jianyue.lightning.framework.web.config.ProfilerRequestMappingHandlerAdapter;
+import com.jianyue.lightning.framework.web.method.argument.resolver.FirstClassSupportHandlerMethodArgumentResolver;
+import com.jianyue.lightning.framework.web.method.argument.resolver.enhance.HandlerMethodArgumentEnhancer;
 import com.jianyue.lightning.result.Result;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import com.jianyue.lightning.framework.web.advice.DefaultGlobalControllerExceptionHandler;
-import com.jianyue.lightning.framework.web.logs.LightningWebLogInterceptor;
-import com.jianyue.lightning.framework.web.logs.ProfilerRequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import java.util.List;
 
@@ -33,39 +36,42 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties(WebProperties.class)
+@RequiredArgsConstructor
+@Import(LightningWebConfigurations.class)
 public class WebConfigAutoConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private WebProperties webProperties;
+    private final ProfilerRequestMappingHandlerAdapter profilerRequestMappingHandlerAdapter = new ProfilerRequestMappingHandlerAdapter();
+    private final WebProperties webProperties;
 
-    /**
-     * 提供了拦截器 ... 决定是否启用 ..
-     * 确保则不加入 ..
-     */
+
     @Bean
-    @ConditionalOnProperty(value = "lightning.web.config.logging.enable")
     public WebMvcRegistrations webMvcRegistrations() {
         return new WebMvcRegistrations() {
             @Override
             public RequestMappingHandlerAdapter getRequestMappingHandlerAdapter() {
-                return new ProfilerRequestMappingHandlerAdapter();
+                return getProfilerRequestMappingHandlerAdapter();
             }
         };
     }
 
-    /**
-     *  确保加入了 ProfilerRequestMappingHandlerAdapter 才进行 LightningWebLogInterceptor拦截器获取
-     */
-    @ConditionalOnProperty(value = "lightning.web.config.logging.enable")
-    @Bean
-    public void addInterceptors(InterceptorRegistry registry, LightningWebLogInterceptor logInterceptor) {
-        registry.addInterceptor(logInterceptor);
+    private ProfilerRequestMappingHandlerAdapter getProfilerRequestMappingHandlerAdapter() {
+        return profilerRequestMappingHandlerAdapter;
+    }
+
+    @Autowired(required = false)
+    private void setHandlerMethodArgumentEnhancers(List<HandlerMethodArgumentEnhancer> enhancers) {
+        getProfilerRequestMappingHandlerAdapter().setEnhancers(enhancers);
     }
 
 
+    @Autowired(required = false)
+    private void setFirstClassHandlerMethodArgumentResolvers(List<FirstClassSupportHandlerMethodArgumentResolver> resolvers) {
+        getProfilerRequestMappingHandlerAdapter().setFirstClassSupportHandlerMethodArgumentResolvers(resolvers);
+    }
 
     @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    public void extendMessageConverters(@NotNull List<HttpMessageConverter<?>> converters) {
+        WebMvcConfigurer.super.extendMessageConverters(converters);
         if(webProperties.getJson().getSerializeIncludeNonNull()) {
             converters.stream().filter(ele -> ele instanceof MappingJackson2HttpMessageConverter)
                     .forEach(ele -> {
@@ -74,6 +80,7 @@ public class WebConfigAutoConfiguration implements WebMvcConfigurer {
                     });
         }
     }
+
 
     /**
      * feign 和  普通异常的拦截自动切换 ...

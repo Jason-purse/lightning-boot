@@ -15,8 +15,8 @@ import org.springframework.core.ResolvableType
  *
  *
  * 此Converter 可以结合
- * @see com.jianyue.lightning.boot.starter.generic.crud.service.config.AopConfig 来基于线程安全的方式,获取当前存储的有关参数的校验组
- * @see com.jianyue.lightning.boot.starter.generic.crud.service.support.validates.ValidationSupport 来根据不同校验组形成,不同的Query ..
+ * @see com.jianyue.lightning.boot.starter.generic.crud.service.config.ControllerValidationAopAspectConfiguration 来基于线程安全的方式,获取当前存储的有关参数的校验组
+ * @see com.jianyue.lightning.boot.starter.generic.crud.service.support.strategy.CrudStrategySupport 来根据不同校验组形成,不同的Query ..
  *
  * 同样,此类可以使用一个接口P 作为许多子类型的处理的ConverterAdapter(或者代理 / 包装器模式,然后代理到具体子类的转换器实现) ...
  * 减少代码修改范围 ...

@@ -122,6 +122,12 @@
                 <artifactId>lightning-boot-core</artifactId>
                 <version>${lightning.boot.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.jianyue</groupId>
+                <artifactId>lightning-framework-web</artifactId>
+                <version>${lightning.boot.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

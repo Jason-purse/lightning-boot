@@ -1,6 +1,5 @@
 package com.jianyue.lightning.result;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -10,6 +9,10 @@ import java.util.List;
  * @Description 结果抽象
  */
 public interface Result<T> {
+
+    Integer defaultSuccessCode = 200;
+
+    String defaultSuccessString = "success";
 
     Integer getCode();
 
@@ -58,6 +61,14 @@ public interface Result<T> {
 
     public static <T> Result<T> success(Integer code, String message, List<T> results) {
         return new DefaultResultImpl<>(code, message, results, null);
+    }
+
+    public static <T> Result<T> success(T result) {
+        return new DefaultResultImpl<>(defaultSuccessCode, defaultSuccessString, null, result);
+    }
+
+    public static <T> Result<T> success(List<T> results) {
+        return new DefaultResultImpl<>(defaultSuccessCode, defaultSuccessString, results, null);
     }
 
     public static Result<Void> error(Integer code, String message) {

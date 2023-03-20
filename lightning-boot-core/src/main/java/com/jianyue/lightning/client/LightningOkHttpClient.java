@@ -1,18 +1,25 @@
 package com.jianyue.lightning.client;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jianyue.lightning.exception.DefaultApplicationException;
 import com.jianyue.lightning.result.Result;
 import com.jianyue.lightning.util.JsonUtil;
 import okhttp3.*;
 import org.apache.commons.lang3.ObjectUtils;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Okhttp客户端
@@ -26,6 +33,7 @@ public class LightningOkHttpClient {
     final static String AND = "&";
     final static String EQ = "=";
 
+    private final static ObjectMapper MAPPER = new ObjectMapper();
     private final OkHttpClient okHttpClient;
 
     /**
@@ -82,7 +90,7 @@ public class LightningOkHttpClient {
             return LightningResponse.builder()
                     .code(response.code())
                     // 不一定会有响应体 ..
-                    .body(body != null ? body.toString() : "")
+                    .body(body != null ? body.string() : "")
                     .build();
         } catch (IOException e) {
             throw new DefaultApplicationException("request execute failure !!!", e);
@@ -103,7 +111,6 @@ public class LightningOkHttpClient {
     }
 
 
-
     public <T> T getResultForGet(String param, String path, Class<T> targetClazz) {
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
         Request request = new Request.Builder()
@@ -117,16 +124,73 @@ public class LightningOkHttpClient {
         if (data.getCode() >= 200 && data.getCode() < 300) {
             return data.getResult();
         }
-        throw DefaultApplicationException.of(data.getCode(),data.getMessage());
+        throw DefaultApplicationException.of(data.getCode(), data.getMessage());
     }
 
+    public <T> T getResultForGet(String param, String path, TypeReference<T> targetClazz) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .get()
+                .build();
+        LightningResponse lightningResponse = this.execute(request);
+        String responseBody = lightningResponse.getBody();
+        final Result<T> data = JsonUtil.getDefaultJsonUtil().fromJson(responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(), JsonUtil.getDefaultJsonUtil().createJavaType(targetClazz)));
+        // 都看作 success
+        if (data.getCode() >= 200 && data.getCode() < 300) {
+            return data.getResult();
+        }
+        throw DefaultApplicationException.of(data.getCode(), data.getMessage());
+    }
+
+
+    public <T> T getResultForGet(String param, String path, Class<T> targetClazz, Map<String, String> headers) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .get()
+                .headers(genHeaders(headers))
+                .build();
+        LightningResponse lightningResponse = this.execute(request);
+        String responseBody = lightningResponse.getBody();
+        final Result<T> data = JsonUtil.getDefaultJsonUtil().fromJson(responseBody,
+                JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
+                        JsonUtil.getDefaultJsonUtil().createJavaType(targetClazz)));
+        // 都看作 success
+        if (data.getCode() >= 200 && data.getCode() < 300) {
+            return data.getResult();
+        }
+        throw DefaultApplicationException.of(data.getCode(), data.getMessage());
+    }
+
+
+    public <T> T getResultForGet(String param, String path, TypeReference<T> targetClazz, Map<String, String> headers) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .get()
+                .headers(genHeaders(headers))
+                .build();
+        LightningResponse lightningResponse = this.execute(request);
+        String responseBody = lightningResponse.getBody();
+        final Result<T> data = JsonUtil.getDefaultJsonUtil().fromJson(responseBody,
+                JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
+                        JsonUtil.getDefaultJsonUtil().createJavaType(targetClazz)));
+        // 都看作 success
+        if (data.getCode() >= 200 && data.getCode() < 300) {
+            return data.getResult();
+        }
+        throw DefaultApplicationException.of(data.getCode(), data.getMessage());
+    }
 
     /**
      * Get 数组方法统一返回List对象
      */
-    public <T> List<T> getListOfResultForGet(String param, String path, Class<T> clazz) {
+    public <T> List<T> getListOfResultForGet(String param, String path, @Nullable Map<String, String> headers, Class<T> clazz) {
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
-        Request request = (new okhttp3.Request.Builder()).url(urlBuilder.build()).get().build();
+        Request request = (new okhttp3.Request.Builder()).url(urlBuilder.build()).get()
+                .headers(genHeaders(headers))
+                .build();
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
         Result<T> result =
@@ -141,25 +205,66 @@ public class LightningOkHttpClient {
             }
         }
 
-        throw DefaultApplicationException.of(result.getCode(),result.getMessage());
+        throw DefaultApplicationException.of(result.getCode(), result.getMessage());
     }
 
-    /**
-     * Post 返回对象
-     */
-    public <T> T getResultForJsonPost(Object o, String path, Class<? extends T> clazz) {
-        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path)).newBuilder();
-        MediaType json = MediaType.parse("application/json; charset=utf-8");
-        Request request = new Request.Builder()
-                .url(urlBuilder.build())
-                .post(RequestBody.create( JsonUtil.getDefaultJsonUtil().asJSON(o),json))
+    public <T> List<T> getListOfResultForGet(String param, String path, @Nullable Map<String, String> headers, TypeReference<T> clazz) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path + param)).newBuilder();
+        Request request = (new okhttp3.Request.Builder()).url(urlBuilder.build()).get()
+                .headers(genHeaders(headers))
                 .build();
         LightningResponse lightningResponse = this.execute(request);
         String responseBody = lightningResponse.getBody();
         Result<T> result =
                 JsonUtil.getDefaultJsonUtil().fromJson(
+                        responseBody,
+                        JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
+                                JsonUtil.getDefaultJsonUtil().createJavaType(clazz))
+                );
+
+        if (result.getCode() >= 200 && result.getCode() < 300) {
+            if (result.hasResults()) {
+                return result.getResults();
+            }
+        }
+
+        throw DefaultApplicationException.of(result.getCode(), result.getMessage());
+    }
+
+
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, Class<T> javaType) {
+        return getResultForJsonPost(o, path, headers, JsonUtil.getDefaultJsonUtil().createJavaType(javaType));
+    }
+
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, TypeReference<T> javaType) {
+        return getResultForJsonPost(o, path, headers, JsonUtil.getDefaultJsonUtil().createJavaType(javaType));
+    }
+
+    /**
+     * Post 返回对象
+     */
+    public <T> T getResultForJsonPost(Object o, String path, Map<String, String> headers, JavaType javaType) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path)).newBuilder();
+
+        MediaType json = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body;
+        if (FormBody.class.isAssignableFrom(o.getClass())) {
+            body = (FormBody) o;
+        } else {
+            body = RequestBody.create(JsonUtil.getDefaultJsonUtil().asJSON(o), json);
+        }
+        Request.Builder builder = new Request.Builder()
+                .url(urlBuilder.build())
+                .post(body);
+        if (ObjectUtils.isNotEmpty(headers)) {
+            builder.headers(genHeaders(headers)).build();
+        }
+        LightningResponse lightningResponse = this.execute(builder.build());
+        String responseBody = lightningResponse.getBody();
+        Result<T> result =
+                JsonUtil.getDefaultJsonUtil().fromJson(
                         responseBody, JsonUtil.getDefaultJsonUtil().createJavaType(Result.getDefaultImplementClass(),
-                                clazz)
+                                javaType)
                 );
 
         if (result.getCode() >= 200 && result.getCode() < 300) {
@@ -281,7 +386,7 @@ public class LightningOkHttpClient {
      * @param headers  请求头
      * @return t
      */
-    public Map<?, ?> getDataForOtherPost (
+    public Map<?, ?> getDataForOtherPost(
             Object formData,
             String path,
             Map<String, String> headers) {
@@ -295,8 +400,7 @@ public class LightningOkHttpClient {
             FormBody.Builder builder = new FormBody.Builder();
             map.forEach((k, v) -> builder.add(k, v.toString()));
             f = builder.build();
-        }
-        else {
+        } else {
             f = new FormBody.Builder().build();
         }
         Request.Builder builder = new Request.Builder()
@@ -339,5 +443,144 @@ public class LightningOkHttpClient {
         return JsonUtil.getDefaultJsonUtil().fromJson(lightningResponse.getBody(), Map.class);
     }
 
+    /**
+     * Post 返回对象
+     * 注意使用jackson反序列化时,boolean类型最好不用isXXX格式
+     * 如果使用了必须将类型改为 Boolean不要用boolean切记.
+     *
+     * @param o       查询对象
+     * @param path    请求路径
+     * @param headers 请求头
+     * @return t
+     */
+    public Map<?, ?> postResultForObjectThird(
+            Object o,
+            String path,
+            Map<String, String> headers) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path)).newBuilder();
+        MediaType json = MediaType.parse("application/json; charset=utf-8");
+        try {
+            Request.Builder builder = new Request.Builder()
+                    .url(urlBuilder.build())
+                    .post(RequestBody.create(json, MAPPER.writeValueAsString(o)));
+            if (!CollectionUtils.isEmpty(headers)) {
+                builder.headers(genHeaders(headers));
+            }
+            Request request = builder.build();
+            LightningResponse lightningResponse = this.execute(request);
+            String responseBody = lightningResponse.getBody();
+            return MAPPER.readValue(responseBody, Map.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     * Post 返回对象
+     * 注意使用jackson反序列化时,boolean类型最好不用isXXX格式
+     * 如果使用了必须将类型改为 Boolean不要用boolean切记.
+     *
+     * @param o             查询对象
+     * @param path          请求路径
+     * @param <T>           泛型
+     * @param key           返回的结果获取具体数据的key
+     * @param headers       请求头
+     * @param typeReference 返回的类型
+     * @return t
+     */
+    public <T> T postResultForObjectThird(
+            Object o,
+            String path,
+            com.fasterxml.jackson.core.type.TypeReference<T> typeReference,
+            Map<String, String> headers,
+            String key) {
+        try {
+            Map<?, ?> map = postResultForObjectThird(o, path, headers);
+            if (StringUtils.isEmpty(key)) {
+                return MAPPER.readValue(MAPPER.writeValueAsString(map), typeReference);
+            }
+            Object data = map.get(key);
+            String result = MAPPER.writeValueAsString(data);
+            return MAPPER.readValue(result, typeReference);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * TODO 拼接get请求参数,map的value暂时只支持list和基本数据类型的value
+     *
+     * @param map 参数
+     * @return 参数
+     */
+    public String genParam(Map<String, Object> map) {
+        if (org.springframework.util.CollectionUtils.isEmpty(map)) {
+            return EMPTY_STR;
+        }
+        StringBuilder builder = new StringBuilder();
+        Set<String> set = map.keySet();
+        AtomicBoolean flag = new AtomicBoolean(false);
+        for (String key : set) {
+            Object value = map.get(key);
+            if (Collection.class.isAssignableFrom(value.getClass())) {
+                Collection<?> collection = (Collection<?>) value;
+                collection.forEach(it -> {
+                    if (flag.get()) {
+                        builder.append(AND);
+                    } else {
+                        builder.append(QUESTION_MARK);
+                        flag.set(true);
+                    }
+                    builder.append(key).append(EQ).append(it);
+                });
+            } else {
+                if (flag.get()) {
+                    builder.append(AND);
+                } else {
+                    builder.append(QUESTION_MARK);
+                    flag.set(true);
+                }
+                builder.append(key).append(EQ).append(value);
+            }
+
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Post 返回对象
+     *
+     * @param o
+     * @param path
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public <T> T postResultForObject(Object o, String path, Class<? extends T> clazz) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(path)).newBuilder();
+        MediaType json = MediaType.parse("application/json; charset=utf-8");
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .post(RequestBody.create(json, JSONObject.toJSONString(o)))
+                .build();
+        LightningResponse lightningResponse = this.execute(request);
+        String responseBody = lightningResponse.getBody();
+        TypeReference<Result<T>> typeReference = new TypeReference<Result<T>>() {
+        };
+        Result<T> result = JSONObject.parseObject(responseBody, (Type) typeReference);
+        if (result.getCode() == 200L) {
+            try {
+                String str = MAPPER.writeValueAsString(result.getResult());
+                return MAPPER.readValue(str, clazz);
+            } catch (JsonProcessingException var12) {
+                var12.printStackTrace();
+                throw new DefaultApplicationException("request execute failure !!!", var12);
+            }
+        } else {
+            throw new DefaultApplicationException("request execute failure !!!", null);
+        }
+    }
 
 }
