@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jianyue.lightning.boot.starter.mqtt.MqttListenerConfiguration, \
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.jianyue.lightning.boot.starter.mqtt.MqttListenerConfiguration
