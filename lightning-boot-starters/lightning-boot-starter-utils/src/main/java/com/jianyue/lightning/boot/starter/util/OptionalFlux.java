@@ -79,6 +79,14 @@ public class OptionalFlux<S> {
         return stringOrNull(str);
     }
 
+    public  static <T>  OptionalFlux<Collection<T>> collection(@Nullable Collection<T> collection) {
+        return new OptionalFlux<>(ElvisUtil.collectionElvisOrNull(collection));
+    }
+
+    public static <T> OptionalFlux<Collection<T>> collectionOrNull(@Nullable Collection<T> collection,@NotNull Collection<T> defaultCollection) {
+        return new OptionalFlux<>(ElvisUtil.collectionElvis(collection,defaultCollection));
+    }
+
 
     public Optional<S> getValue() {
         return this.value;
@@ -267,7 +275,14 @@ public class OptionalFlux<S> {
     public <T> OptionalFlux<T> switchMap(Function<S, T> function, Supplier<T> supplier) {
         Objects.requireNonNull(function);
         Objects.requireNonNull(supplier);
-        return this.map(function).orElse(supplier);
+
+        // 这样做的目的是,防止 supplier 替换了function的结果
+        // 之前的函数是 this.map(function).orElse(supplier) 这很有可能导致 supplier 替换了function的结果 ..
+        if(isPresent()) {
+            return map(function);
+        }
+        // 这个时候可以调用 ..
+        return OptionalFlux.of(supplier.get());
     }
 
 

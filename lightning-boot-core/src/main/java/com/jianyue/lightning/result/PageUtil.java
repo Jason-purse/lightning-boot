@@ -69,6 +69,7 @@ public class PageUtil<T> {
         return new PageUtil<>(page, size, 0);
     }
 
+
     public static <T> PageUtil<T> first() {
         return new PageUtil<>(1, 10, 0);
     }
