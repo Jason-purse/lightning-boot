@@ -164,4 +164,12 @@ public class ElvisUtil {
     public static <T> Collection<T> collectionElvisOrNull(Collection<T> first) {
         return ElvisUtil.acquireNotNullList(first, null);
     }
+
+    public static <T> List<T> listElvis(List<T> first, List<T> second) {
+        return ElvisUtil.acquireNotNullList(first, second);
+    }
+
+    public static <T> List<T> listElvisOrNull(List<T> first) {
+        return ElvisUtil.acquireNotNullList(first, null);
+    }
 }

@@ -17,9 +17,6 @@ import java.util.function.*;
 
 public class OptionalFlux<S> {
 
-    public static OptionalFlux<?> Return = new OptionalFlux<>(null);
-
-
     /**
      * hold value
      */
@@ -79,12 +76,20 @@ public class OptionalFlux<S> {
         return stringOrNull(str);
     }
 
-    public  static <T>  OptionalFlux<Collection<T>> collection(@Nullable Collection<T> collection) {
+    public static <T> OptionalFlux<Collection<T>> collection(@Nullable Collection<T> collection) {
         return new OptionalFlux<>(ElvisUtil.collectionElvisOrNull(collection));
     }
 
-    public static <T> OptionalFlux<Collection<T>> collectionOrNull(@Nullable Collection<T> collection,@NotNull Collection<T> defaultCollection) {
-        return new OptionalFlux<>(ElvisUtil.collectionElvis(collection,defaultCollection));
+    public static <T> OptionalFlux<Collection<T>> collectionOrNull(@Nullable Collection<T> collection, @NotNull Collection<T> defaultCollection) {
+        return new OptionalFlux<>(ElvisUtil.collectionElvis(collection, defaultCollection));
+    }
+
+    public static <T> OptionalFlux<List<T>> list(@Nullable List<T> collection) {
+        return new OptionalFlux<>(ElvisUtil.listElvisOrNull(collection));
+    }
+
+    public static <T> OptionalFlux<List<T>> listOrNull(@Nullable List<T> collection, @NotNull List<T> defaultCollection) {
+        return new OptionalFlux<>(ElvisUtil.listElvis(collection, defaultCollection));
     }
 
 
@@ -157,6 +162,12 @@ public class OptionalFlux<S> {
         return orElse(supplier.get());
     }
 
+    /**
+     * 尝试使用基于函数的例如: {@link #orElse(Optional)},{@link #orElse(OptionalFlux)} ,{@link #orElse(Supplier)}等等函数替换 ..
+     * @param target 提供对象
+     * @return 另一个OptionalFlux
+     */
+    @Deprecated
     public OptionalFlux<S> orElse(S target) {
         if (this.value.isEmpty()) {
             return OptionalFlux.of(target);
@@ -172,7 +183,6 @@ public class OptionalFlux<S> {
         }
         return this;
     }
-
 
     public OptionalFlux<S> orElse(OptionalFlux<S> target) {
         if (!isPresent()) {
@@ -243,17 +253,16 @@ public class OptionalFlux<S> {
      * @param <T>    目标类型
      * @return empty or optionalFlux<T>
      */
-    public <T> OptionalFlux<T> to(T target) {
-        return this.map(ele -> target);
+    public <T> OptionalFlux<T> to(Supplier<T> target) {
+        return this.map(ele -> target.get());
     }
 
-    public <T> OptionalFlux<T> to(OptionalFlux<T> target) {
-        return this.map(ele -> target.getResult());
+    public <T> OptionalFlux<T> flattenTo(Supplier<OptionalFlux<T>> target) {
+        return this.flattenMap(ele -> target.get());
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public <T> OptionalFlux<T> to(Optional<T> target) {
-        return this.flatMap(ele -> target);
+    public <T> OptionalFlux<T> flatTo(Supplier<Optional<T>> target) {
+        return this.flatMap(ele -> target.get());
     }
 
     public OptionalFlux<S> toEmpty() {
@@ -278,7 +287,7 @@ public class OptionalFlux<S> {
 
         // 这样做的目的是,防止 supplier 替换了function的结果
         // 之前的函数是 this.map(function).orElse(supplier) 这很有可能导致 supplier 替换了function的结果 ..
-        if(isPresent()) {
+        if (isPresent()) {
             return map(function);
         }
         // 这个时候可以调用 ..
