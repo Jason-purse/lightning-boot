@@ -164,6 +164,8 @@ public class OptionalFlux<S> {
 
     /**
      * 尝试使用基于函数的例如: {@link #orElse(Optional)},{@link #orElse(OptionalFlux)} ,{@link #orElse(Supplier)}等等函数替换 ..
+     *
+     * 但是如果是直接提供常量值,那么没有任何影响 ... 可以使用(例如 orElse(Collections.emptyList())
      * @param target 提供对象
      * @return 另一个OptionalFlux
      */

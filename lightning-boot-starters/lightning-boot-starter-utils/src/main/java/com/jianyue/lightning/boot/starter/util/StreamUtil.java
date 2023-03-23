@@ -1,5 +1,7 @@
 package com.jianyue.lightning.boot.starter.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +42,21 @@ public class StreamUtil {
      * @param <S>    S 目标类型
      * @return 目标类型集合
      */
-    public static <T, S> Function<List<T>, List<S>> listMap(Function<T, S> mapper) {
-        return list -> list.stream().map(mapper).collect(Collectors.toList());
+    @SafeVarargs
+    public static <T, S> Function<List<T>, List<S>> listMap(Function<T, S> mapper, Function<Stream<S>, Stream<S>> ...func) {
+        return list -> {
+            Stream<S> stream = list.stream().map(mapper);
+            stream = invokeStreamFunc(stream, func);
+            return stream.collect(Collectors.toList());
+        };
+    }
+
+    private static <S> Stream<S> invokeStreamFunc(Stream<S> stream, Function<Stream<S>, Stream<S>>[] func) {
+        // 开始处理
+        for (Function<Stream<S>, Stream<S>> function : func) {
+            stream = function.apply(stream);
+        }
+        return stream;
     }
 
     /**
@@ -84,8 +99,13 @@ public class StreamUtil {
      * @param <S>    S 目标类型
      * @return 目标类型集合
      */
-    public static <T, S> Function<Set<T>, Set<S>> setMap(Function<T, S> mapper) {
-        return set -> set.stream().map(mapper).collect(Collectors.toSet());
+    @SafeVarargs
+    public static <T, S> Function<Set<T>, Set<S>> setMap(Function<T, S> mapper,Function<Stream<S>, Stream<S>> ...func) {
+        return set -> {
+            Stream<S> stream = set.stream().map(mapper);
+            stream = invokeStreamFunc(stream,func);
+            return stream.collect(Collectors.toSet());
+        };
     }
 
     /**
@@ -129,8 +149,13 @@ public class StreamUtil {
      * @param <S>    S 目标类型
      * @return 目标类型集合
      */
-    public static <T, S> Function<Collection<T>, Collection<S>> collectionMap(Function<T, S> mapper) {
-        return collection -> collection.stream().map(mapper).collect(Collectors.toSet());
+    @SafeVarargs
+    public static <T, S> Function<Collection<T>, Collection<S>> collectionMap(Function<T, S> mapper,Function<Stream<S>, Stream<S>> ...func) {
+        return collection -> {
+            Stream<S> stream = collection.stream().map(mapper);
+            stream = invokeStreamFunc(stream,func);
+            return stream.collect(Collectors.toSet());
+        };
     }
 
     /**
@@ -152,6 +177,19 @@ public class StreamUtil {
      */
     public static <T, K, U> Function<Collection<T>, Map<K, U>> collectionToMap(Function<T, K> keyMapper, Function<T, U> valueMapper) {
         return list -> list.stream().collect(Collectors.toMap(keyMapper, valueMapper));
+    }
+
+
+    public static <T> Function<Stream<T>,Stream<T>> distinct() {
+        return Stream::distinct;
+    }
+
+    public static <T> Function<Stream<T>,List<T>> toList() {
+        return Stream::toList;
+    }
+
+    public static <T> Function<Stream<T>,Set<T>> toSet() {
+        return list -> list.collect(Collectors.toSet());
     }
 
 }

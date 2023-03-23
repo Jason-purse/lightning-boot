@@ -118,6 +118,7 @@ public class DefaultGlobalControllerExceptionHandler {
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     public Result<?> handleOtherException(Throwable ex) {
+        ex.printStackTrace();
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
     }
 }
