@@ -1,5 +1,7 @@
 package com.jianyue.lightning.result;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.Nullable;
@@ -22,7 +24,11 @@ public class PageUtil<T> {
         this(page, size, total, Collections.emptyList());
     }
 
-    private PageUtil(int page, int size, long total, @Nullable List<T> content) {
+    /**
+     * 主构造器
+     */
+    @JsonCreator
+    private PageUtil(@JsonProperty("page") int page, @JsonProperty("size") int size, @JsonProperty("total") long total, @JsonProperty("content") @Nullable List<T> content) {
 
         this.page = page > 0 ? page : 1;
         this.size = size > 0 ? size : 10;
@@ -79,7 +85,12 @@ public class PageUtil<T> {
     }
 
 
-    public static <T> PageUtil<T> of(int page, int size, long total, @NotNull List<T> content) {
+    /**
+     * 主构造器
+     */
+
+    @JsonCreator
+    public static <T> PageUtil<T> of(@JsonProperty("page") int page, @JsonProperty("size") int size, @JsonProperty("total") long total, @JsonProperty("content") @Nullable List<T> content) {
         return new PageUtil<>(page, size, total, content);
     }
 
