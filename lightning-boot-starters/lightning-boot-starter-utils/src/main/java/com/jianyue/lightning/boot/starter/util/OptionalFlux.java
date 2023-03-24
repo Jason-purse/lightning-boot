@@ -148,18 +148,24 @@ public class OptionalFlux<S> {
      * @return 返回OptionalFlux
      */
     public OptionalFlux<S> orElse(Supplier<S> supplier) {
-        if (this.value.isEmpty()) {
+        if (!this.isPresent()) {
             return OptionalFlux.of(supplier.get());
         }
         return this;
     }
 
     public OptionalFlux<S> orElseFlatTo(Supplier<Optional<S>> supplier) {
-        return orElse(supplier.get());
+        if(!this.isPresent()) {
+            return OptionalFlux.of(supplier.get());
+        }
+        return this;
     }
 
     public OptionalFlux<S> orElseFlattenTo(Supplier<OptionalFlux<S>> supplier) {
-        return orElse(supplier.get());
+        if(!this.isPresent()) {
+            return supplier.get();
+        }
+        return this;
     }
 
     /**
