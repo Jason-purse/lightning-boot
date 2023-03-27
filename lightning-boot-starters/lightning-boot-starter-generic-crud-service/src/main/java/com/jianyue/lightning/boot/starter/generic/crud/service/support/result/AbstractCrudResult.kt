@@ -1,7 +1,6 @@
-package com.safone.order.service.model.order.verification.support.result
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult
 
 /**
  * @date 2022/12/8

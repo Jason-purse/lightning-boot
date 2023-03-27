@@ -5,7 +5,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.BasedParamFreeEntityConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.DefaultGenericConverterAdapter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.EntityConverter
-import com.safone.order.service.model.order.verification.support.converters.QueryConverter
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.QueryConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
@@ -21,7 +21,6 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObj
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType

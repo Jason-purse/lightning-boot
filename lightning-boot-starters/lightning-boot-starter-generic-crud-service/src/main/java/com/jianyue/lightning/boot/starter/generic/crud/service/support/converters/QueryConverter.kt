@@ -1,6 +1,5 @@
-package com.safone.order.service.model.order.verification.support.converters
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
 import org.springframework.core.ResolvableType
 
