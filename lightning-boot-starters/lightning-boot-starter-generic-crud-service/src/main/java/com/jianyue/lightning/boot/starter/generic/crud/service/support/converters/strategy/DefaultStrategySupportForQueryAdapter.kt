@@ -1,7 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.entity.IdSupport
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.Converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.mongo.MongoIdQuery
