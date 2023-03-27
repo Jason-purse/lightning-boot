@@ -1,7 +1,7 @@
 package com.jianyue.lightning.boot.starter.mqtt;
 
-import com.cqsudu.lightning.boot.autoconfigure.mqtt.annotations.MqttListener;
-import com.cqsudu.lightning.boot.autoconfigure.mqtt.annotations.MqttListeners;
+import com.jianyue.lightning.boot.starter.mqtt.annotations.MqttListener;
+import com.jianyue.lightning.boot.starter.mqtt.annotations.MqttListeners;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -24,7 +24,6 @@ import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.cqsudu.lightning.boot.utils.commons.LogUtil.logger;
 
 
 /**
@@ -135,7 +134,7 @@ public class MqttListenerConfiguration implements DisposableBean {
             } catch (Exception e) { // 报错之后,整个客户端都会挂掉,进行日志处理..
                 // pass
                 e.printStackTrace();
-                logger(log, "mqtt handle message occur error: {}", e.getMessage());
+                log.info("mqtt handle message occur error: {}", e.getMessage());
             }
         };
     }
