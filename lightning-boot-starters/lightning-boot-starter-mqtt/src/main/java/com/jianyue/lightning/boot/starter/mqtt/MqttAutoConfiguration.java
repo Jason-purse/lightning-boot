@@ -4,7 +4,6 @@ import com.jianyue.lightning.boot.starter.mqtt.v3.MqttV3AutoConfiguration;
 import com.jianyue.lightning.boot.starter.mqtt.v5.MqttV5AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.config.EnableIntegration;
@@ -21,9 +20,8 @@ import org.springframework.integration.config.EnableIntegration;
  * @see MqttV3AutoConfiguration
  * @see MqttListenerConfiguration
  */
-@Configuration
-@EnableIntegration
 @EnableConfigurationProperties(MqttProperties.class)
+@EnableIntegration
 @IntegrationComponentScan(includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,classes = MqttTemplate.class))
 public class MqttAutoConfiguration {
 

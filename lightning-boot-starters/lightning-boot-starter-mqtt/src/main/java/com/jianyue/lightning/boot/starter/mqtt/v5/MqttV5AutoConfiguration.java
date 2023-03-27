@@ -1,11 +1,8 @@
 package com.jianyue.lightning.boot.starter.mqtt.v5;
 
-
 import com.jianyue.lightning.boot.starter.mqtt.MqttProperties;
-import com.jianyue.lightning.boot.starter.mqtt.v3.MqttV3AutoConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,7 +39,6 @@ import java.util.List;
  *
  */
 @Configuration
-@AutoConfigureAfter(MqttV3AutoConfiguration.class)
 @ConditionalOnClass(Mqttv5PahoMessageHandler.class)
 public class MqttV5AutoConfiguration {
     /**
