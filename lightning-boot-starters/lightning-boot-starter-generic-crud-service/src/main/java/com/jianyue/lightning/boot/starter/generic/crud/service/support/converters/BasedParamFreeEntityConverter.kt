@@ -1,6 +1,5 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.EntityConverter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import java.lang.reflect.Type
