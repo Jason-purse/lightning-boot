@@ -614,4 +614,23 @@ public class LightningOkHttpClient {
         return new HashMap<>(16);
     }
 
+
+    /**
+     * 第三方请求 Get 对象方法统一返回对象
+     *
+     * @param param 参数
+     * @param path  请求路径
+     * @return 不确定的格式, 自己去转
+     */
+    public <T> T getResultForGetThird(String param, String path, Map<String, String> headers, String key, com.fasterxml.jackson.core.type.TypeReference<T> typeReference) {
+        Map<?, ?> resultForGetThird = this.getResultForGetThird(param, path, headers);
+        Object o = resultForGetThird.get(key);
+        try {
+            return MAPPER.readValue(MAPPER.writeValueAsBytes(o), typeReference);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
