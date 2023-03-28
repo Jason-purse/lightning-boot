@@ -6,10 +6,12 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.Que
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.ByIdSpecification
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaIdQuery
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaQuery
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.jpa.JpaSpecificationQuery
 import com.jianyue.lightning.boot.starter.util.isNotNull
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObject
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.domain.Example
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.JpaContext
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport
@@ -105,9 +107,10 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         return list[0]
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T> {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
-        when (query) {
+        return when (query) {
             is IDQuerySupport -> selectById(query, entityClass).let {
                 if (it.isNotNull()) {
                     listOf(it!!)
@@ -115,12 +118,25 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
                     Collections.emptyList()
                 }
             }
-        }
-        return getRepository(entityClass).findAll(
-            Example.of(
-                query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+            is JpaSpecificationQuery<*> -> selectBySpecification(
+                (query as JpaSpecificationQuery<T>),
+                entityClass
             )
-        )
+            else -> getRepository(entityClass).findAll(
+                Example.of(
+                    query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+                )
+            )
+        }
+    }
+
+    private fun <T : Entity, S : JpaSpecificationQuery<T>> selectBySpecification(
+        query: S,
+        entityClass: Class<T>
+    ): List<T> {
+        return getRepository(entityClass).findAll(
+            query.getQueryInfo().getNativeQuery()
+        );
     }
 
     override fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T {

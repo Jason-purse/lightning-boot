@@ -2,7 +2,6 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.AbstractGenericController
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.EnableStrategyWithValidationAnnotation
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.ValidationAnnotation
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.NONE
@@ -10,8 +9,6 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.converter
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroupSupport
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
 import com.jianyue.lightning.boot.starter.util.isNotNull
-import jdk.jfr.AnnotationElement
-import lombok.extern.slf4j.Slf4j
 
 import org.aopalliance.intercept.MethodInterceptor
 import org.aopalliance.intercept.MethodInvocation
@@ -61,6 +58,10 @@ class ControllerValidationAopAspectConfiguration {
          * 验证分组缓存 !!!
          */
         private val validationGroupCache = ConcurrentReferenceHashMap<Method, Class<out StrategyGroup>>();
+    }
+
+    init {
+        logger.info("init controller validation aop aspect configuration !!!")
     }
 
 

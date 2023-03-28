@@ -1,12 +1,11 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.config
 
-import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.EnableControllerValidationStrategy
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.controller.EnableControllerValidationStrategy
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.JpaDbTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.MongoDbTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.param.resolver.ParamHandlerMethodArgumentResolver
 import com.jianyue.lightning.boot.starter.util.ElvisUtil
 import com.jianyue.lightning.framework.web.config.LightningWebProperties
-import com.jianyue.lightning.framework.web.method.argument.resolver.*
 import com.jianyue.lightning.framework.web.util.ClassUtil
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass

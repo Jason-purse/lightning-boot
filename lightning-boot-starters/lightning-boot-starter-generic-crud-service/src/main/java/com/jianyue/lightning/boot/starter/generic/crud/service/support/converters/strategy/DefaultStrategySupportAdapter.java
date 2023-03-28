@@ -51,12 +51,12 @@ public interface DefaultStrategySupportAdapter<S, T> extends StrategyGroupSuppor
         }
         else if (UPDATE.class.equals(validationGroup)) {
             return updateGroupHandle(s);
-        } else if (DELETE.class.equals(validationGroup)) {
+        }
+        else if (DELETE.class.equals(validationGroup)) {
             return deleteGroupHandle(s);
         } else if (DELETE_BY_ID.class.equals(validationGroup)) {
             return deleteByIdGroupHandle(s);
         } else {
-
             // 给其他转换器一个机会 !!!
             return null;
             //throw new IllegalArgumentException("can't not support current validation Group, please override this method !!!");

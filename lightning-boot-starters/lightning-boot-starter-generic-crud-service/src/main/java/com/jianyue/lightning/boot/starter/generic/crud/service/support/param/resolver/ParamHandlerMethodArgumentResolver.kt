@@ -79,12 +79,13 @@ class ParamHandlerMethodArgumentResolver(
                 subClass = getForCacheOrResolveImmediately(parameter, subClass, webRequest)
             }
 
+            logger.info("resolve target class is {}",subClass)
             if (parameter.hasParameterAnnotation(RequestBody::class.java)) {
                 try {
                     webRequest
                             .getNativeRequest(HttpServletRequest::class.java)!!
                             .run {
-                                JsonUtil.getDefaultJsonUtil().fromJson(inputStream, subClass)
+                                attribute = JsonUtil.getDefaultJsonUtil().fromJson(inputStream, subClass)
                             }
                 } catch (e: BindException) {
                     if (isBindExceptionRequired(parameter)) {
@@ -92,6 +93,8 @@ class ParamHandlerMethodArgumentResolver(
                     }
                     attribute = e.target
                     bindingResult = e.bindingResult
+
+                    logger.info("from json resolve failure,because {}",e.message)
                 }
 
                 if (attribute != null) {

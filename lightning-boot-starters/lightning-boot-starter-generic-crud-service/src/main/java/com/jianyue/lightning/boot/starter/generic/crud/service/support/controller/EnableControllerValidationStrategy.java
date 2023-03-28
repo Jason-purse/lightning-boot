@@ -1,6 +1,9 @@
-package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
+package com.jianyue.lightning.boot.starter.generic.crud.service.support.controller;
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.config.ControllerValidationAopAspectConfiguration;
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.DefaultStrategySupportAdapter;
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroup;
+import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy.StrategyGroupSupport;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
