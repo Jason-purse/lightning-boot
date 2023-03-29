@@ -11,7 +11,9 @@ import com.jianyue.lightning.boot.starter.util.isNotNull
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObject
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.domain.Example
-import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaContext
 import org.springframework.data.jpa.repository.support.JpaEntityInformation
 import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport
@@ -75,6 +77,16 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         if (query is IDQuerySupport) {
             return deleteById(query, entityClass)
         }
+
+        if(query is JpaSpecificationQuery<*>) {
+            // 先查在删除 ...
+            return selectByComplex(query, entityClass).let {
+                if (it.isNotEmpty()) {
+                    getRepository(entityClass).deleteAll(it)
+                }
+            }
+        }
+
         getRepository(entityClass).delete(query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery())
     }
 
@@ -118,10 +130,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
                     Collections.emptyList()
                 }
             }
-            is JpaSpecificationQuery<*> -> selectBySpecification(
-                (query as JpaSpecificationQuery<T>),
-                entityClass
-            )
+            is JpaSpecificationQuery<*> -> getRepository(entityClass).findAll((query as JpaSpecificationQuery<T>).getQueryInfo().getNativeQuery())
             else -> getRepository(entityClass).findAll(
                 Example.of(
                     query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
@@ -130,19 +139,36 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         }
     }
 
-    private fun <T : Entity, S : JpaSpecificationQuery<T>> selectBySpecification(
-        query: S,
-        entityClass: Class<T>
-    ): List<T> {
-        return getRepository(entityClass).findAll(
-            query.getQueryInfo().getNativeQuery()
-        );
+    // 分页处理 ..
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Entity> selectByComplex(query: QuerySupport, pageable: Pageable, entityClass: Class<T>): Page<T> {
+        Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
+        return when (query) {
+            is IDQuerySupport -> selectById(query, entityClass).let {
+                if (it.isNotNull()) {
+                    PageImpl(listOf(it!!),pageable,1)
+                } else {
+                    Page.empty()
+                }
+            }
+            is JpaSpecificationQuery<*> -> getRepository(entityClass).findAll((query as JpaSpecificationQuery<T>).getQueryInfo().getNativeQuery(),
+                    pageable)
+            else -> getRepository(entityClass).findAll(
+                    Example.of(
+                            query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
+                    ),
+                    pageable
+            )
+        }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
+            is JpaSpecificationQuery<*> -> getRepository(entityClass)
+                    .findOne((query as JpaSpecificationQuery<T>).getQueryInfo().getNativeQuery())
             else -> getRepository(entityClass).findOne(
                 Example.of(
                     query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
@@ -154,10 +180,13 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
 
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Entity> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T? {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
+            is JpaSpecificationQuery<*> -> getRepository(entityClass)
+                    .findOne((query as JpaSpecificationQuery<T>).getQueryInfo().getNativeQuery())
             else -> getRepository(entityClass).findOne(
                 Example.of(
                     query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()
@@ -177,6 +206,11 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
                 )
             )
         }
+
+        if(query is JpaSpecificationQuery<*>) {
+            getRepository(entityClass).count(query.asNativeObject<JpaSpecificationQuery<T>>().getQueryInfo().getNativeQuery())
+        }
+
         return getRepository(entityClass).count(
             Example.of(
                 query.asNativeObject<JpaQuery<T>>().getQueryInfo().getNativeQuery()

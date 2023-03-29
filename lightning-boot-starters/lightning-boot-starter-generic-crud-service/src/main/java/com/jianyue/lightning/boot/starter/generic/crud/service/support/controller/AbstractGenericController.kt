@@ -7,6 +7,7 @@ import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.Tuple
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import org.springframework.core.ResolvableType
+import org.springframework.data.domain.Pageable
 
 
 import org.springframework.web.bind.annotation.*
@@ -47,6 +48,12 @@ abstract class AbstractGenericController<PARAM : Param, Service : CrudService<PA
     @SelectListGroup
     open fun selectOperations(param: PARAM): CrudResult {
         return getService().selectOperation(InputContext.of(param))
+    }
+
+    @GetMapping("list/page")
+    @SelectListGroup
+    open fun selectOperations(param: PARAM,pageable: Pageable): CrudResult {
+        return getService().selectOperationByPage(InputContext.of(param),pageable)
     }
 
 

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.DisposableBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
+import org.springframework.data.domain.Pageable
 import org.springframework.util.Assert
 import java.lang.reflect.ParameterizedType
 
@@ -286,6 +287,20 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
                         .selectByComplex(this, getEntityClass()).run {
                             return@executeByQuerySupport CrudResult.success(this)
                         }
+                }
+                return@executeByQuerySupport CrudResult.error("select must have one query for get data,and can't use noneQuery !!!")
+            }
+        }
+    }
+
+    override fun selectOperationByPage(context: InputContext<PARAM>, pageable: Pageable): CrudResult {
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if(this !is NoneQuery) {
+                    getDbTemplate()
+                            .selectByComplex(this, pageable,getEntityClass()).run {
+                                return@executeByQuerySupport CrudResult.success(this)
+                            }
                 }
                 return@executeByQuerySupport CrudResult.error("select must have one query for get data,and can't use noneQuery !!!")
             }

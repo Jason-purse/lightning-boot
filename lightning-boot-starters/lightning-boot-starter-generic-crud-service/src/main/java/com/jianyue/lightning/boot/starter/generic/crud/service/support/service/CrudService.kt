@@ -6,6 +6,7 @@ import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.CrudResult
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
 import org.jetbrains.annotations.NotNull
+import org.springframework.data.domain.Pageable
 
 /**
  * @author FLJ
@@ -36,6 +37,8 @@ interface CrudService<PARAM: Param> {
 
 
     fun selectOperation(context: InputContext<PARAM>): CrudResult
+
+    fun selectOperationByPage(context: InputContext<PARAM>,pageable: Pageable): CrudResult
 
     fun selectOperationById(context: InputContext<PARAM>): CrudResult
 

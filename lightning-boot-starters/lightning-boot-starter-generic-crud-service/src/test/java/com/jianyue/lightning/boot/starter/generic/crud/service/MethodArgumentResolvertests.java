@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -84,6 +85,12 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
 
             @NotNull
             public DBTemplate getDbTemplate() {
+                return null;
+            }
+
+            @NotNull
+            @Override
+            public CrudResult selectOperationByPage(@NotNull InputContext<User> context, @NotNull Pageable pageable) {
                 return null;
             }
 

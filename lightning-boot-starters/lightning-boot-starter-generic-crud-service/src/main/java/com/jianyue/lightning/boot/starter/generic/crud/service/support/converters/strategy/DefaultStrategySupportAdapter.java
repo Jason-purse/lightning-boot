@@ -1,5 +1,7 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.strategy;
 
+import org.springframework.data.domain.Page;
+
 /**
  * @author FLJ
  * @date 2022/12/12
@@ -20,6 +22,8 @@ public interface DefaultStrategySupportAdapter<S, T> extends StrategyGroupSuppor
     default T selectListGroupHandle(S s) {
         return null;
     }
+
+    default T selectListAndPageGroupHandle(S s) {return null; };
     default T selectOneGroupHandle(S s) { return null; }
     default T selectByIdGroupHandle(S s) {
         return null;
@@ -38,6 +42,7 @@ public interface DefaultStrategySupportAdapter<S, T> extends StrategyGroupSuppor
     }
 
 
+
     default T validationHandle(S s) {
         Class<? extends StrategyGroup> validationGroup = StrategyGroupSupport.Companion.getValidationGroup();
         if (ADD.class.equals(validationGroup)) {
@@ -46,6 +51,8 @@ public interface DefaultStrategySupportAdapter<S, T> extends StrategyGroupSuppor
             return selectByIdGroupHandle(s);
         } else if (SELECT_LIST.class.equals(validationGroup)) {
             return selectListGroupHandle(s);
+        } else if (SELECT_LIST_AND_PAGE.class.equals(validationGroup)) {
+            return selectListAndPageGroupHandle(s);
         } else if(SELECT_ONE.class.equals(validationGroup)) {
             return selectOneGroupHandle(s);
         }

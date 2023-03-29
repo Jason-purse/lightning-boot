@@ -45,6 +45,7 @@ class StrategyGroupAssist {
         validationGroups.add(UPDATE.class);
         validationGroups.add(DELETE.class);
         validationGroups.add(DELETE_BY_ID.class);
+        validationGroups.add(SELECT_LIST_AND_PAGE.class);
     }
 
     static void register(Class<? extends StrategyGroup> group) {

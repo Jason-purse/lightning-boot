@@ -3,6 +3,9 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.support.db
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.IDQuerySupport
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.QuerySupport
+import com.jianyue.lightning.result.PageUtil
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 /**
  * @date 2022/12/8
@@ -30,6 +33,11 @@ interface DBTemplate {
     fun <T : Entity> selectOne(query: QuerySupport,entityClass: Class<T>): T?
 
     fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T>
+
+    /**
+     * 分页处理
+     */
+    fun <T : Entity> selectByComplex(query: QuerySupport,pageable: Pageable,entityClass: Class<T>): Page<T>
 
     fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T
 

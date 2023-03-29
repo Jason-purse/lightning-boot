@@ -31,15 +31,15 @@ public class EnhanceHandlerMethodArgumentResolver implements HandlerMethodArgume
     @Override
     public Object resolveArgument(@NotNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NotNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         Object argument = resolvers.resolveArgument(parameter, mavContainer, webRequest, binderFactory);
+
         // 进行参数解析 !!!
-        if(argument != null) {
-            if (enhancers.supportsParameter(parameter)) {
-                enhancers.enhanceArgument(new MethodArgumentContext(
-                        parameter,mavContainer,
-                        webRequest,binderFactory,
-                        argument
-                ));
-            }
+        // 不判断空参数 ..
+        if (enhancers.supportsParameter(parameter)) {
+            enhancers.enhanceArgument(new MethodArgumentContext(
+                    parameter,mavContainer,
+                    webRequest,binderFactory,
+                    argument
+            ));
         }
 
         return argument;

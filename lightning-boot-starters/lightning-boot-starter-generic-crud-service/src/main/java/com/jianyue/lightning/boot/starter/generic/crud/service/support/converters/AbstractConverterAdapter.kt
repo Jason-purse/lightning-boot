@@ -155,10 +155,12 @@ abstract class AbstractConverterAdapter<S, T> : Converter<S, T>, ApplicationCont
 
     override fun convert(param: S): T? {
         for (converter in converters) {
-            // 如果支持但是,转换出来时 null,则继续转换
-            val convert = converter.convert(param)
-            if (convert.isNotNull()) {
-                return convert
+            if(converter.support(param)) {
+                // 如果支持但是,转换出来时 null,则继续转换
+                val convert = converter.convert(param)
+                if (convert.isNotNull()) {
+                    return convert
+                }
             }
         }
         return null

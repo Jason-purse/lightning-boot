@@ -7,6 +7,9 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.query.Que
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.asNativeObject
 import org.springframework.boot.autoconfigure.AutoConfigureOrder
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.util.Assert
 
@@ -75,6 +78,13 @@ class MongoDbTemplate(private val mongoTemplate: MongoTemplate) : DBTemplate {
     override fun <T : Entity> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T? {
         return query.asNativeObject<MongoQuery>().let {
             mongoTemplate.findOne(it.getQueryInfo().getNativeQuery(), entityClass)
+        }
+    }
+
+    override fun <T : Entity> selectByComplex(query: QuerySupport, pageable: Pageable, entityClass: Class<T>): Page<T> {
+        return query.asNativeObject<MongoQuery>().let {
+            val queryWithPage= it.getQueryInfo().getNativeQuery().with(pageable)
+            PageImpl(mongoTemplate.find(queryWithPage,entityClass),pageable,mongoTemplate.count(queryWithPage,entityClass))
         }
     }
 

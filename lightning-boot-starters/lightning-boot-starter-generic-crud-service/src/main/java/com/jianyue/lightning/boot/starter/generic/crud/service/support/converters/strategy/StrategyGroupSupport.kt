@@ -58,6 +58,9 @@ interface StrategyGroupSupport<S,T> {
             return invokeForStrategyGroup(SELECT_LIST::class.java,action)
         }
 
+        fun invokeForSelectListAndPage(action: () -> Any?): Any? {
+            return invokeForStrategyGroup(SELECT_LIST_AND_PAGE::class.java,action)
+        }
         fun invokeForSelectOne(action: () -> Any?): Any? {
             return invokeForStrategyGroup(SELECT_ONE::class.java, action)
         }
