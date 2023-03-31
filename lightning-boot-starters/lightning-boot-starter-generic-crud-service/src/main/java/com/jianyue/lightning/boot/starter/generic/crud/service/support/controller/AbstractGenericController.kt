@@ -51,7 +51,7 @@ abstract class AbstractGenericController<PARAM : Param, Service : CrudService<PA
     }
 
     @GetMapping("list/page")
-    @SelectListGroup
+    @SelectListAndPageGroup
     open fun selectOperations(param: PARAM,pageable: Pageable): CrudResult {
         return getService().selectOperationByPage(InputContext.of(param),pageable)
     }

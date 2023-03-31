@@ -164,7 +164,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
     }
 
 
-    private fun choiceQueryConverterAndInvoke(
+    protected fun choiceQueryConverterAndInvoke(
         context: InputContext<PARAM>,
         action: QuerySupport.() -> CrudResult
     ): CrudResult {
@@ -412,4 +412,6 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
     override fun getParamClass(): Class<out Param> {
         return paramClass
     }
+
+
 }
