@@ -18,6 +18,8 @@ public interface Result<T> {
 
     String getMessage();
 
+    Long getTotalCount();
+
     /**
      * 是否存在result
      *
@@ -77,6 +79,16 @@ public interface Result<T> {
 
     public static <T> Result<T> page(Integer code, String message, List<T> list) {
         return success(code, message, list);
+    }
+
+    /**兼容旧分页查询，后续新项目会逐渐清理
+     * @param list
+     * @param <T>
+     * @return
+     */
+    @Deprecated
+    public static <T> Result<T> toPage(Long total, List<T> list) {
+        return new ExtResultImpl<>(defaultSuccessCode, defaultSuccessString, total, list, null);
     }
 
     /**
