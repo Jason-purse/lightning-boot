@@ -1,0 +1,62 @@
+{
+  "groups": [
+    {
+      "name": "lightning.mail",
+      "type": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties"
+    },
+    {
+      "name": "lightning.web.config",
+      "type": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties"
+    },
+    {
+      "name": "lightning.web.config.json",
+      "type": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties$JacksonConfig",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties",
+      "sourceMethod": "getJson()"
+    },
+    {
+      "name": "lightning.web.config.logging",
+      "type": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties$LoggingConfig",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties",
+      "sourceMethod": "getLogging()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "lightning.mail.account",
+      "type": "java.lang.String",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties"
+    },
+    {
+      "name": "lightning.mail.password",
+      "type": "java.lang.String",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties"
+    },
+    {
+      "name": "lightning.mail.smtp-host",
+      "type": "java.lang.String",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties"
+    },
+    {
+      "name": "lightning.mail.smtp-port",
+      "type": "java.lang.Integer",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.mail.MailProperties"
+    },
+    {
+      "name": "lightning.web.config.json.serialize-include-non-null",
+      "type": "java.lang.Boolean",
+      "description": "序列化只包括非空 ...",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties$JacksonConfig",
+      "defaultValue": false
+    },
+    {
+      "name": "lightning.web.config.logging.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.jianyue.lightning.boot.autoconfigure.web.WebProperties$LoggingConfig",
+      "defaultValue": false
+    }
+  ],
+  "hints": []
+}
