@@ -4,6 +4,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.En
 import com.jianyue.lightning.boot.starter.generic.crud.service.util.DateTimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
@@ -14,7 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public class JpaEntity implements Entity {
+public abstract class JpaEntity<ID> implements Entity<ID> {
     /**
      * 创建时间
      */

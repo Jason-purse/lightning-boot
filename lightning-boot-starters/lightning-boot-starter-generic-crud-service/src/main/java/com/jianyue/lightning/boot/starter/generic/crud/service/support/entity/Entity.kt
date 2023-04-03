@@ -1,5 +1,6 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.entity
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.entity.IdSupport
 import java.io.Serializable
 
 /**
@@ -10,7 +11,7 @@ import java.io.Serializable
  *
  * Entity 基本信息,需要可序列化
  **/
-interface Entity : EntitySupport,Serializable {
+interface Entity<ID> : EntitySupport,IdSupport<ID>,Serializable {
 
     /**
      * 保存填充

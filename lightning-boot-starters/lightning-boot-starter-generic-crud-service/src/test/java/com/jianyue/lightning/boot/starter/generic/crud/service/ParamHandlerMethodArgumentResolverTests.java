@@ -68,13 +68,13 @@ public class ParamHandlerMethodArgumentResolverTests {
         }
     }
 
-    public static class MyParamService extends AbstractCrudService<Param, Entity> {
+    public static class MyParamService extends AbstractCrudService<Param, Entity<String>> {
         public MyParamService(DBTemplate dbTemplate) {
             super(dbTemplate);
         }
 
     }
-    public static class OrganizationService extends AbstractCrudService<OrganizationParam,Entity> {
+    public static class OrganizationService extends AbstractCrudService<OrganizationParam,Entity<String>> {
 
     }
 

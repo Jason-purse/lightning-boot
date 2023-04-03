@@ -15,6 +15,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Objects;
  *
  * 此crudService 遵循事务定义 - 通过{@link TransactionalQuerySupport}
  */
-public abstract class TransactionalCrudService<P extends Param, T extends Entity> extends AbstractCrudService<P, T> {
+public abstract class TransactionalCrudService<P extends Param, T extends Entity<? extends Serializable>> extends AbstractCrudService<P, T> {
 
     /**
      * 来支持线程处理过程中保存的事务定义 !!

@@ -4,6 +4,8 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.En
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.service.AbstractCrudService;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+
 /**
  * @author FLJ
  * @date 2022/12/26
@@ -11,6 +13,6 @@ import org.springframework.stereotype.Service;
  * @Description default Object Service handle
  */
 @Service
-public class DefaultObjectService extends AbstractCrudService<DefaultParam, Entity> implements ObjectService {
+public class DefaultObjectService extends AbstractCrudService<DefaultParam, Entity<Serializable>> implements ObjectService {
 
 }

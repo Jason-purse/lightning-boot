@@ -72,7 +72,7 @@ public class OptionalFlux<S> {
     }
 
 
-    public static OptionalFlux<String> string(@NotNull String str) {
+    public static OptionalFlux<String> string(String str) {
         return stringOrNull(str);
     }
 

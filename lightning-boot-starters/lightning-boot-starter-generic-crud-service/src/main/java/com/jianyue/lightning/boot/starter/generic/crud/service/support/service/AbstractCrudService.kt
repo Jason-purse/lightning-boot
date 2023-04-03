@@ -1,6 +1,7 @@
 package com.jianyue.lightning.boot.starter.generic.crud.service.support.service
 
 
+import com.jianyue.lightning.boot.starter.generic.crud.service.entity.StringBasedMongoEntity
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.converters.*
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.db.DBTemplate
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationContextAware
 import org.springframework.core.ResolvableType
 import org.springframework.data.domain.Pageable
 import org.springframework.util.Assert
+import java.io.Serializable
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -39,7 +41,7 @@ import java.lang.reflect.ParameterizedType
  *
  *
  */
-abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: DBTemplate?) : CrudService<PARAM>,
+abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity<out Serializable>>(dbTemplate: DBTemplate?) : CrudService<PARAM>,
     ApplicationContextAware,
     DisposableBean {
 
@@ -55,14 +57,14 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
     // 只要符合java assignableFrom 以及 逻辑 assignableFrom 语义即可 ...
     private val queryConverters: AbstractConverterAdapter<PARAM, QuerySupport>
 
-    private val entityConverters: AbstractConverterAdapter<PARAM, out Entity>
+    private val entityConverters: AbstractConverterAdapter<PARAM, ENTITY>
 
     private val queryForListConverters: AbstractConverterAdapter<List<PARAM>, QuerySupport>
 
     /**
      * 具体可用的entity 参数 class 表现(也可以是接口),因为最终的entity 转换交给支持子类的entity converter ..
      */
-    private val entityClass: Class<ENTITY>
+    private val entityClass: Class<out Entity<out Serializable>>
 
     /**
      * 具体可用的参数class 表现(也就是接口),因为最终的query转换交给 实际支持子类的queryConverter ..
@@ -153,7 +155,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
                     }
                 }
 
-                getDbTemplate().add(choiceEntityConverterAndInvoke(context).asNativeObject<Entity>().apply {
+                getDbTemplate().add(choiceEntityConverterAndInvoke(context).asNativeObject<Entity<Serializable>>().apply {
                     logger.info("add operation invoke save fill !!!")
                     // 回调
                     saveFill();
@@ -257,10 +259,9 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
                 // 不允许对所有数据进行操作 !!!
                 if (this !is NoneQuery) {
                     context.let {
-                        val one: Entity? =
-                            getDbTemplate().selectFirstOrNull(
-                                this,
-                                getEntityClass()
+                            val one = getDbTemplate().selectFirstOrNull(
+                                    this,
+                                    getEntityClass()
                             )
 
                         if (one.isNull()) {
@@ -404,7 +405,7 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity>(dbTemplate: D
      * 具体生成目标Entity的class
      */
 // 子类可以覆盖 ..
-    override fun getEntityClass(): Class<out Entity> {
+    override fun getEntityClass(): Class<out Entity<out Serializable>> {
         return entityClass
     }
 

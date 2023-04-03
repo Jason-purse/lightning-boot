@@ -136,7 +136,7 @@ public class ElvisUtil {
     }
 
     public static Long longOrZero(Long value) {
-        return longElvis(value,0);
+        return longElvis(value,0L);
     }
 
     public static Double doubleElvis(Double value, Double defaultValue) {

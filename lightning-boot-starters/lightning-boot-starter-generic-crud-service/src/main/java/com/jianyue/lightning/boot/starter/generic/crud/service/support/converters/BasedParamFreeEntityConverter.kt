@@ -2,6 +2,7 @@ package com.jianyue.lightning.boot.starter.generic.crud.service.support.converte
 
 import com.jianyue.lightning.boot.starter.generic.crud.service.support.entity.Entity
 import com.jianyue.lightning.framework.generic.crud.abstracted.param.Param
+import java.io.Serializable
 import java.lang.reflect.Type
 
 /**
@@ -10,10 +11,10 @@ import java.lang.reflect.Type
  * @time 9:38
  * @Description 基于参数自由的 默认的Entity 转换器
  */
-class BasedParamFreeEntityConverter(
-    private val paramClazz: Class<out Param>,
-    private val entityClazz: Class<out Entity>
-) : EntityConverter<Param, Entity> {
+class BasedParamFreeEntityConverter<P: Param,T: Entity<out Serializable>>(
+    private val paramClazz: Class<P>,
+    private val entityClazz: Class<T>
+) : EntityConverter<P, T> {
 
     override fun getSourceClass(): Type {
         return paramClazz;

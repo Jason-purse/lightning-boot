@@ -15,7 +15,7 @@ import java.util.Date;
  */
 @Data
 @NoArgsConstructor
-public abstract class MongoEntity implements Entity {
+public abstract class MongoEntity<ID> implements Entity<ID> {
 
 
     /**

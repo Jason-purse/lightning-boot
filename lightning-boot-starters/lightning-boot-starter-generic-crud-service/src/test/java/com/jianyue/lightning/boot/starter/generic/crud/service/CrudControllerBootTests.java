@@ -66,7 +66,7 @@ public class CrudControllerBootTests {
         private String userId;
     }
 
-    public static class MyService extends AbstractCrudService<MyParam, Entity> {
+    public static class MyService extends AbstractCrudService<MyParam, Entity<String>> {
 
     }
 

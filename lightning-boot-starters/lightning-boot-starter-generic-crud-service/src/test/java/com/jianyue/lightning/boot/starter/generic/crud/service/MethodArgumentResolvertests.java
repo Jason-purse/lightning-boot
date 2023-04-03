@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.support.ConfigurableWebBindingInitializer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 /**
@@ -67,7 +68,7 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
 
             @NotNull
             @Override
-            public CrudResult deleteOperation(@NotNull InputContext<User> context) {
+            public CrudResult selectOperationByPage(@NotNull InputContext<User> context, @NotNull Pageable pageable) {
                 return null;
             }
 
@@ -79,24 +80,25 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
 
             @NotNull
             @Override
+            public CrudResult deleteOperation(@NotNull InputContext<User> context) {
+                return null;
+            }
+
+            @NotNull
+            @Override
             public CrudResult deleteOperationById(@NotNull InputContext<User> context) {
                 return null;
             }
 
             @NotNull
+            @Override
             public DBTemplate getDbTemplate() {
                 return null;
             }
 
             @NotNull
             @Override
-            public CrudResult selectOperationByPage(@NotNull InputContext<User> context, @NotNull Pageable pageable) {
-                return null;
-            }
-
-            @NotNull
-            @Override
-            public Class<? extends Entity> getEntityClass() {
+            public Class<? extends Entity<? extends Serializable>> getEntityClass() {
                 return null;
             }
 

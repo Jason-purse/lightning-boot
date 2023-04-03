@@ -21,6 +21,7 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryImplementati
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.Assert
+import java.io.Serializable
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -41,12 +42,12 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     private val idCache = ConcurrentHashMap<Class<*>, Class<*>>()
 
     @Transactional
-    override fun <T : Entity> add(data: T) {
+    override fun <T : Entity<out Serializable>> add(data: T) {
         getRepository(data.javaClass).save(data)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Entity> getRepository(clazz: Class<T>): JpaRepositoryImplementation<T, Any> {
+    private fun <T : Entity<out Serializable>> getRepository(clazz: Class<T>): JpaRepositoryImplementation<T, Any> {
         return emCache.computeIfAbsent(clazz) {
             val entityManager = context.getEntityManagerByManagedType(clazz)
             val entityInformation = JpaEntityInformationSupport.getEntityInformation(clazz, entityManager)
@@ -62,17 +63,21 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     @Transactional
-    override fun <T : Entity> addList(data: List<T>) {
+    override fun <T : Entity<out Serializable>> addList(data: List<T>) {
         getRepository(data[0].javaClass).saveAll(data)
     }
 
+    override fun <T : Entity<out Serializable>> saveList(data: List<T>) {
+        addList(data)
+    }
+
     @Transactional
-    override fun <T : Entity> update(data: T) {
+    override fun <T : Entity<out Serializable>> update(data: T) {
         getRepository(data.javaClass).save(data)
     }
 
     @Transactional
-    override fun <T : Entity> delete(query: QuerySupport, entityClass: Class<T>) {
+    override fun <T : Entity<out Serializable>> delete(query: QuerySupport, entityClass: Class<T>) {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         if (query is IDQuerySupport) {
             return deleteById(query, entityClass)
@@ -91,7 +96,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     @Transactional
-    override fun <T : Entity> deleteById(query: IDQuerySupport, entityClass: Class<T>) {
+    override fun <T : Entity<out Serializable>> deleteById(query: IDQuerySupport, entityClass: Class<T>) {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         val idQuery = query.asNativeObject<JpaIdQuery<*>>()
         getRepository(entityClass).let {
@@ -102,7 +107,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         }
     }
 
-    override fun <T : Entity> selectById(query: IDQuerySupport, entityClass: Class<T>): T? {
+    override fun <T : Entity<out Serializable>> selectById(query: IDQuerySupport, entityClass: Class<T>): T? {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         val idQuery = query.asNativeObject<JpaIdQuery<*>>()
         // 强制判断 ..
@@ -113,14 +118,14 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         }
     }
 
-    override fun <T : Entity> selectOne(query: QuerySupport, entityClass: Class<T>): T? {
+    override fun <T : Entity<out Serializable>> selectOne(query: QuerySupport, entityClass: Class<T>): T? {
         val list = this.selectByComplex(query, entityClass)
         Assert.isTrue(list.isNotEmpty(), "need only one,but return many result !!!")
         return list[0]
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Entity> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T> {
+    override fun <T : Entity<out Serializable>> selectByComplex(query: QuerySupport, entityClass: Class<T>): List<T> {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> selectById(query, entityClass).let {
@@ -141,7 +146,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
 
     // 分页处理 ..
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Entity> selectByComplex(query: QuerySupport, pageable: Pageable, entityClass: Class<T>): Page<T> {
+    override fun <T : Entity<out Serializable>> selectByComplex(query: QuerySupport, pageable: Pageable, entityClass: Class<T>): Page<T> {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> selectById(query, entityClass).let {
@@ -163,7 +168,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Entity> selectFirst(query: QuerySupport, entityClass: Class<T>): T {
+    override fun <T : Entity<out Serializable>> selectFirst(query: QuerySupport, entityClass: Class<T>): T {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
@@ -181,7 +186,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Entity> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T? {
+    override fun <T : Entity<out Serializable>> selectFirstOrNull(query: QuerySupport, entityClass: Class<T>): T? {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         return when (query) {
             is IDQuerySupport -> Optional.ofNullable(selectById(query, entityClass))
@@ -195,7 +200,7 @@ open class JpaDbTemplate(private val context: JpaContext) : DBTemplate {
         }.orElse(null)
     }
 
-    override fun <T : Entity> countBy(query: QuerySupport, entityClass: Class<T>): Long {
+    override fun <T : Entity<out Serializable>> countBy(query: QuerySupport, entityClass: Class<T>): Long {
         Assert.isTrue(query is JpaQuery<*>, "query must be jpaQuery type !!!");
         if (query is IDQuerySupport) {
             @Suppress("UNCHECKED_CAST")

@@ -8,6 +8,7 @@ import com.jianyue.lightning.boot.starter.generic.crud.service.support.result.Cr
 import com.jianyue.lightning.boot.starter.util.dataflow.impl.InputContext
 import org.jetbrains.annotations.NotNull
 import org.springframework.data.domain.Pageable
+import java.io.Serializable
 
 /**
  * @author FLJ
@@ -50,7 +51,7 @@ interface CrudService<PARAM: Param> {
 
     fun getDbTemplate(): DBTemplate
 
-    fun getEntityClass(): Class<out Entity>
+    fun getEntityClass(): Class<out Entity<out Serializable>>
 
 
     @NotNull
