@@ -3,6 +3,9 @@ package com.jianyue.lightning.boot.starter.util.mongo.query;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ReflectUtil;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.InvalidMongoDbApiUsageException;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,6 +34,9 @@ import java.util.regex.Pattern;
 public final class MongoQueryExt {
 
 	private Criteria criteria;
+	private Sort sort;
+
+	private Pageable pageable;
 
 	public MongoQueryExt(Criteria criteria) {
 		this.criteria = criteria;
@@ -43,6 +49,7 @@ public final class MongoQueryExt {
 	public static MongoQueryExt builder() {
 		return new MongoQueryExt();
 	}
+
 
 	public MongoQueryExt eq(String key, Object value) {
 		criteria.and(key).is(value);
@@ -128,7 +135,6 @@ public final class MongoQueryExt {
 	public <T> MongoQueryExt lte(FieldGetter<T, ?> fieldGetter, Object o) {
 		return this.lte(fieldGetter.getFieldName(), o);
 	}
-
 
 	/**
 	 * ?<=x<=?
@@ -259,10 +265,6 @@ public final class MongoQueryExt {
 		return this.regex(fieldGetter.getFieldName(), value, predicate);
 	}
 
-	public Query build() {
-		return new Query(this.criteria);
-	}
-
 	/**
 	 * @param key    key
 	 * @param value  value
@@ -369,6 +371,26 @@ public final class MongoQueryExt {
 	public MongoQueryExt and(Criteria... orCriteria) {
 		criteria.andOperator(orCriteria);
 		return this;
+	}
+
+	public MongoQueryExt sort(Sort sort) {
+		this.sort = sort;
+		return this;
+	}
+
+	public MongoQueryExt page(Pageable pageable) {
+		this.pageable = pageable;
+		return this;
+	}
+
+	public MongoQueryExt page(int pageNum, int pageSize) {
+		this.pageable = PageRequest.of(pageNum < 1 ? 0 : pageNum - 1, Math.max(pageSize, 0));
+		return this;
+	}
+
+
+	public Query build() {
+		return new Query(this.criteria).with(pageable).with(sort);
 	}
 
 	/**
