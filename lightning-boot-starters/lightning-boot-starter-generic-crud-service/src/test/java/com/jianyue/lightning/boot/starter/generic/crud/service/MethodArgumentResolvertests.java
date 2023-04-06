@@ -92,6 +92,18 @@ public class MethodArgumentResolvertests extends AbstractGenericController<Metho
 
             @NotNull
             @Override
+            public CrudResult deleteOperationWithResult(@NotNull InputContext<User> context) {
+                return null;
+            }
+
+            @NotNull
+            @Override
+            public CrudResult deleteOperationByIdWithResult(@NotNull InputContext<User> context) {
+                return null;
+            }
+
+            @NotNull
+            @Override
             public DBTemplate getDbTemplate() {
                 return null;
             }

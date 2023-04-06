@@ -350,6 +350,31 @@ abstract class AbstractCrudService<PARAM : Param, ENTITY : Entity<out Serializab
         }
     }
 
+    override fun deleteOperationWithResult(context: InputContext<PARAM>): CrudResult {
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this !is NoneQuery) {
+                    getDbTemplate().deleteAndReturn(this, getEntityClass()).let {
+                        return@executeByQuerySupport CrudResult.success(it)
+                    }
+                }
+                return@executeByQuerySupport CrudResult.error("delete must have one query for delete data,and can't use noneQuery !!!")
+            }
+        }
+    }
+
+    override fun deleteOperationByIdWithResult(context: InputContext<PARAM>): CrudResult {
+        return choiceQueryConverterAndInvoke(context) {
+            executeByQuerySupport(this) {
+                if (this is IDQuerySupport) {
+                    getDbTemplate().deleteByIdAndReturn(this.asNativeObject(), getEntityClass()).let {
+                        return@executeByQuerySupport CrudResult.success(it)
+                    }
+                }
+                return@executeByQuerySupport CrudResult.error("deleteById must have one query for get data,and must use IdQuery !!!")
+            }
+        }
+    }
 
     protected open fun executeByQuerySupport(querySupport: QuerySupport, action: QuerySupport.() -> CrudResult): CrudResult {
         return action.invoke(querySupport)

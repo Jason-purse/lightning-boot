@@ -101,6 +101,24 @@ class MongoDbTemplate(private val mongoTemplate: MongoTemplate) : DBTemplate {
         }
     }
 
+    override fun <T : Entity<out Serializable>> deleteAndReturn(query: QuerySupport, entityClass: Class<T>): List<T> {
+        return query.asNativeObject<MongoQuery>().let {
+            mongoTemplate.find(it.getQueryInfo().getNativeQuery(),entityClass).apply {
+                if(isNotEmpty()) {
+                    mongoTemplate.remove(it.getQueryInfo().getNativeQuery(), entityClass)
+                }
+            }
+        }
+    }
+
+    override fun <T : Entity<out Serializable>> deleteByIdAndReturn(query: IDQuerySupport, entityClass: Class<T>): T? {
+        return query.asNativeObject<MongoQuery>().let {
+            mongoTemplate.findOne(it.getQueryInfo().getNativeQuery(),entityClass)?.apply {
+                mongoTemplate.remove(it.getQueryInfo().getNativeQuery(), entityClass)
+            }
+        }
+    }
+
     override fun <T : Entity<out Serializable>> selectById(query: IDQuerySupport, entityClass: Class<T>): T? {
         return query.asNativeObject<MongoQuery>().let {
             mongoTemplate.findOne(it.getQueryInfo().getNativeQuery(), entityClass)
@@ -108,9 +126,7 @@ class MongoDbTemplate(private val mongoTemplate: MongoTemplate) : DBTemplate {
     }
 
     override fun <T : Entity<out Serializable>> selectOne(query: QuerySupport, entityClass: Class<T>): T? {
-        val list = this.selectByComplex(query, entityClass)
-        Assert.isTrue(list.isNotEmpty(), "need only one ,but return many result !!!")
-        return list[0];
+        return this.selectFirstOrNull(query,entityClass);
     }
 
     override fun <T : Entity<out Serializable>> selectFirst(query: QuerySupport, entityClass: Class<T>): T {

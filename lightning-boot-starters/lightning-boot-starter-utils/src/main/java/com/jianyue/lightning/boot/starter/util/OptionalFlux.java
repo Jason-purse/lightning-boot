@@ -29,7 +29,7 @@ public class OptionalFlux<S> {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public OptionalFlux(Optional<S> value) {
-        this.value = value;
+        this.value = ElvisUtil.getOrDefault(value,Optional.empty());
     }
 
     public OptionalFlux(S value) {
@@ -43,8 +43,14 @@ public class OptionalFlux<S> {
      * @param <S>   type
      * @return new OptionalFlux
      */
+    @java.lang.Deprecated
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <S> OptionalFlux<S> of(Optional<S> value) {
+        return new OptionalFlux<>(value);
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public static <S> OptionalFlux<S> optional(Optional<S> value) {
         return new OptionalFlux<>(value);
     }
 
@@ -277,6 +283,14 @@ public class OptionalFlux<S> {
         return this.orElse(empty());
     }
 
+
+    /**
+     * 简单断言
+     * @param predicate predicate
+     */
+    public OptionalFlux<S> assertion(Predicate<S> predicate) {
+        return this.switchMapIfTrueOrNull(predicate,Function.identity());
+    }
 
     /**
      * // switch map (三元表达式 推断)

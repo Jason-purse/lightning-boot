@@ -49,6 +49,10 @@ interface CrudService<PARAM: Param> {
 
     fun deleteOperationById(context: InputContext<PARAM>): CrudResult
 
+    fun deleteOperationWithResult(context: InputContext<PARAM>): CrudResult
+
+    fun deleteOperationByIdWithResult(context: InputContext<PARAM>): CrudResult
+
     fun getDbTemplate(): DBTemplate
 
     fun getEntityClass(): Class<out Entity<out Serializable>>

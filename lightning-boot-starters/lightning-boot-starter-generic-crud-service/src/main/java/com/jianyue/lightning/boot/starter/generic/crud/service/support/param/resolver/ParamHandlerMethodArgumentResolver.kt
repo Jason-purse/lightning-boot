@@ -24,6 +24,7 @@ import org.springframework.web.method.annotation.ModelFactory
 import org.springframework.web.method.support.ModelAndViewContainer
 import java.util.concurrent.ConcurrentHashMap
 import javax.servlet.http.HttpServletRequest
+import kotlin.math.log
 
 /**
  * @author FLJ
@@ -79,7 +80,7 @@ class ParamHandlerMethodArgumentResolver(
                 subClass = getForCacheOrResolveImmediately(parameter, subClass, webRequest)
             }
 
-            logger.info("resolve target class is {}",subClass)
+            logger.info("resolve target class is {}", subClass)
             if (parameter.hasParameterAnnotation(RequestBody::class.java)) {
                 try {
                     webRequest
@@ -94,7 +95,7 @@ class ParamHandlerMethodArgumentResolver(
                     attribute = e.target
                     bindingResult = e.bindingResult
 
-                    logger.info("from json resolve failure,because {}",e.message)
+                    logger.info("from json resolve failure,because {}", e.message)
                 }
 
                 if (attribute != null) {
@@ -106,7 +107,7 @@ class ParamHandlerMethodArgumentResolver(
             }
         }
 
-        logger.info("resolve attribute is {}",attribute)
+        logger.info("resolve attribute is {}", attribute)
         return attribute;
     }
 
@@ -154,17 +155,22 @@ class ParamHandlerMethodArgumentResolver(
     private fun Class<out Param>.getImplementationClassByStrategy(list: List<Class<out Param>>, request: NativeWebRequest): Tuple<String, Class<out Param>> {
         var defaultStrategyClass: Class<out Param>? = null;
         var tempStrategyClass: Tuple<String, Class<out Param>>? = null;
-        var hasStrategy: Boolean = false
+        var hasStrategy = false
         for (clazz in list) {
+
             if (isAssignableFrom(clazz)) {
+
                 // 判断注解上的value 和 请求中的参数是否一致
                 AnnotationUtils.getAnnotation(clazz, ParamStrategy::class.java)?.let {
-                    val requestParamLabel = ElvisUtil.stringElvis(it.requestParamLabel,ParamStrategy.DEFAULT_REQUEST_PARAM_LABEL);
+
+                    val requestParamLabel = ElvisUtil.stringElvis(it.requestParamLabel, ParamStrategy.DEFAULT_REQUEST_PARAM_LABEL);
                     request.getParameter(requestParamLabel).run {
-                        if (isNotBlank()) {
+
+                        if(isNotBlank()) {
                             if (!hasStrategy) {
                                 hasStrategy = true;
                             }
+
                             if (this == it.value) {
                                 if (tempStrategyClass == null) {
                                     tempStrategyClass = Tuple(it.value, clazz);
@@ -173,6 +179,7 @@ class ParamHandlerMethodArgumentResolver(
                                 }
                             }
                         }
+
                         if (!hasStrategy) {
                             // 找默认值 !!
                             if (it.value == ParamStrategy.DEFAULT_STRATEGY) {
@@ -183,18 +190,24 @@ class ParamHandlerMethodArgumentResolver(
                                 }
                             }
                         }
+
                     }
 
                 }
             }
         }
+
         if (hasStrategy) {
+            if(tempStrategyClass == null) {
+                throw IllegalArgumentException("cant find sub type of $simpleName !!!")
+            }
             return tempStrategyClass!!
         }
 
         if (defaultStrategyClass != null) {
             return Tuple(ParamStrategy.DEFAULT_STRATEGY, defaultStrategyClass)
         }
+
         throw IllegalAccessException("can't find sub type of $simpleName !!!")
     }
 

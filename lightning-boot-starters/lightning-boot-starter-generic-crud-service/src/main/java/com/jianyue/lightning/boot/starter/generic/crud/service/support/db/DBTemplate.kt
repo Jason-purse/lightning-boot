@@ -30,6 +30,10 @@ interface DBTemplate {
 
     fun <T : Entity<out Serializable>> deleteById(query: IDQuerySupport, entityClass: Class<T>)
 
+    fun <T : Entity<out Serializable>> deleteAndReturn(query: QuerySupport, entityClass: Class<T>): List<T>
+
+    fun <T : Entity<out Serializable>> deleteByIdAndReturn(query: IDQuerySupport, entityClass: Class<T>): T?
+
     fun <T : Entity<out Serializable>> selectById(query: IDQuerySupport, entityClass: Class<T>): T?
 
     fun <T : Entity<out Serializable>> selectOne(query: QuerySupport,entityClass: Class<T>): T?
