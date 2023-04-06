@@ -1,8 +1,11 @@
 package com.jianyue.lightning.boot.starter.util;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -39,11 +42,12 @@ public class OptionalFlux<S> {
     /**
      * 静态方法 构造一个OptionalFlux
      *
+     * 有些情况下,同是泛型的情况下,相同of(..)无法识别到底是什么类型 ...
      * @param value value optional
      * @param <S>   type
      * @return new OptionalFlux
      */
-    @java.lang.Deprecated
+    @Deprecated
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <S> OptionalFlux<S> of(Optional<S> value) {
         return new OptionalFlux<>(value);
@@ -127,9 +131,44 @@ public class OptionalFlux<S> {
         return this.map(targetClass::cast).orElse(OptionalFlux.empty());
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> OptionalFlux<T> cast(ParameterizedTypeReference<T> typeReference) {
+        return this.map(ele -> {
+            ResolvableType resolvableType = ResolvableType.forType(typeReference.getType());
+            ResolvableType type = ResolvableType.forClass(ele.getClass());
+            if (resolvableType
+                    .isAssignableFrom(type)) {
+                return ((T) ele);
+            }
+            String msg = "Cannot cast object '" + ele + "' with class '" + resolvableType.getType().getTypeName() + "' to class '" + type.getType().getTypeName() + "'";
+            throw new ClassCastException(msg);
+        }).orElse(OptionalFlux.empty());
+    }
+
     public OptionalFlux<S> existsForThrowEx(RuntimeException ex) {
         if (this.isPresent()) {
             throw ex;
+        }
+        return this;
+    }
+
+    public OptionalFlux<S> existsForThrowEx(Supplier<RuntimeException> ex) {
+        if (this.isPresent()) {
+            throw ex.get();
+        }
+        return this;
+    }
+
+    public OptionalFlux<S> orElseThrowEx(RuntimeException ex) {
+        if (!this.isPresent()) {
+            throw ex;
+        }
+        return this;
+    }
+
+    public OptionalFlux<S> orElseThrowEx(Supplier<RuntimeException> ex) {
+        if (!this.isPresent()) {
+            throw ex.get();
         }
         return this;
     }
@@ -291,6 +330,7 @@ public class OptionalFlux<S> {
     public OptionalFlux<S> assertion(Predicate<S> predicate) {
         return this.switchMapIfTrueOrNull(predicate,Function.identity());
     }
+
 
     /**
      * // switch map (三元表达式 推断)
