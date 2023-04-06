@@ -1,7 +1,6 @@
 package com.jianyue.lightning.boot.starter.util;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
