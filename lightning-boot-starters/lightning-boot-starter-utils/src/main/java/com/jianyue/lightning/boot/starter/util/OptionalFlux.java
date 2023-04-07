@@ -131,6 +131,9 @@ public class OptionalFlux<S> {
         return this.map(targetClass::cast).orElse(OptionalFlux.empty());
     }
 
+    /**
+     * 泛型转换
+     */
     @SuppressWarnings("unchecked")
     public <T> OptionalFlux<T> cast(ParameterizedTypeReference<T> typeReference) {
         return this.map(ele -> {
