@@ -6,32 +6,31 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.jianyue.lightning.boot.starter.util.OptionalFlow.switchMapFunc;
+import static com.jianyue.lightning.boot.starter.util.SwitchUtil.switchMapFunc;
+
 
 public class OptionalFluxTests {
     public static void main(String[] args) {
         System.out.println(
-                OptionalFlow
+                OptionalFlux
                         .of(123)
                         .map(ele -> ele * 23)
                         .consume(System.out::println)
                         .map(ele -> null)
-                        .consumeOrElse(System.out::println, () -> {
-                            System.out.println("参数为空");
-                        })
+                        .consume(System.out::println)
                         .consume((ele) -> {
                             System.out.println("仅仅不为空,才消费");
                         })
                         .orElse(456)
-                        .get()
+                        .getResult()
+
         );
 
 
-        OptionalFlow
+        OptionalFlux
                 .of(123)
                 .map(
                         // if-else
@@ -45,7 +44,7 @@ public class OptionalFluxTests {
                         )
                 )
                 .consume(System.out::println)
-                .get();
+                .getResult();
 
 
         OptionalFlow
