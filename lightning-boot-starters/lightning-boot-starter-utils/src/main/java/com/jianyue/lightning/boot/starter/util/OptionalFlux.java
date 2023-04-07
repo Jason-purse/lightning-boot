@@ -122,7 +122,7 @@ public class OptionalFlux<S> {
         return this;
     }
 
-    public OptionalFlux<S> consume(NOArgConsumer consumer) {
+    public OptionalFlux<S> then(NOArgConsumer consumer) {
         this.value.ifPresent(ele -> consumer.accept());
         return this;
     }
