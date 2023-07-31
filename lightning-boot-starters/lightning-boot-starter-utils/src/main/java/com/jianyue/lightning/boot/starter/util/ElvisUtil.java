@@ -2,8 +2,9 @@ package com.jianyue.lightning.boot.starter.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -14,145 +15,210 @@ import java.util.function.Supplier;
 /**
  * @author FLJ
  * @dateTime 2021/12/20 13:01
- * @description ?: 形式的操作符
+ * @description ?: 形式的操作符(elvis 操作符)
  */
 public class ElvisUtil {
-    public static <T> Collection<T> acquireNotNullCollection(Collection<T> collection,Collection<T> defaultCollection) {
-        if(CollectionUtils.isNotEmpty(collection)) {
-            return collection;
-        }
-        return defaultCollection;
-    }
-    public static <T> Collection<T> acquireNotNullCollection_EmptyList(Collection<T> collection,Collection<T> defaultCollection) {
-       return acquireNotNullCollection(collection,Collections.emptyList());
-    }
 
-    public static <K,V> Map<K,V> acquireNotNullMap(Map<K,V> map, Map<K,V> defaultMap) {
-        if(MapUtils.isNotEmpty(map)) {
+
+    @NotNull
+    public static <K, V> Map<K, V> getMap(@Nullable Map<K, V> map, @NotNull Map<K, V> defaultMap) {
+        if (MapUtils.isNotEmpty(map)) {
             return map;
         }
         return defaultMap;
     }
-    public static <K,V> Map<K,V> acquireNotNullMap_Empty(Map<K,V> map) {
-        return acquireNotNullMap(map,Collections.emptyMap());
+
+    @NotNull
+    public static <K, V> Map<K, V> getMapOrEmpty(@Nullable Map<K, V> map) {
+        return getMap(map, Collections.emptyMap());
     }
 
-    public static <T> T[] acquireNotNullArray(T[] array,T[] defaultArray) {
-        if(ObjectUtils.isEmpty(array)) {
+    @NotNull
+    public static <T> T[] getArray(@Nullable T[] array, @NotNull T[] defaultArray) {
+        if (isEmpty(array)) {
             return defaultArray;
+        }
+
+        return array;
+    }
+
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public static <T> T[] getArrayOrEmpty(@Nullable T[] array, Class<T> tClass) {
+
+        if (isEmpty(array)) {
+            return (T[]) Array.newInstance(tClass, 0);
         }
         return array;
     }
-    @SuppressWarnings("unchecked")
-    public static <T> T[] acquireNotNullArray_Empty(T[] array,Class<T> tClass) {
-        T[] sequence =(T[]) Array.newInstance(tClass, 0);
-        return acquireNotNullArray(array,sequence);
-    }
 
-    public static <T> List<T> acquireNotNullList(List<T> list, List<T> defaultList) {
-        if(CollectionUtils.isNotEmpty(list)) {
+    @NotNull
+    public static <T> List<T> getList(@Nullable List<T> list, @NotNull List<T> defaultList) {
+        if (CollectionUtils.isNotEmpty(list)) {
             return list;
         }
         return defaultList;
     }
-    public static <T> List<T> acquireNotNullList_Empty(List<T> list) {
-        return acquireNotNullList(list, Collections.emptyList());
+
+    @NotNull
+    public static <T> List<T> getListOrEmpty(@Nullable List<T> list) {
+        return getList(list, Collections.emptyList());
     }
 
-    public static <T> Collection<T> acquireNotNullList(Collection<T> list, Collection<T> defaultList) {
-        if(CollectionUtils.isNotEmpty(list)) {
+    @NotNull
+    public static <T> Collection<T> getCollection(@Nullable Collection<T> list, @NotNull Collection<T> defaultList) {
+        if (CollectionUtils.isNotEmpty(list)) {
             return list;
         }
         return defaultList;
     }
-    public static <T> Collection<T> acquireNotNullList_Empty(Collection<T> list) {
-        return acquireNotNullList(list, Collections.emptyList());
+
+    @NotNull
+    public static <T> Collection<T> getCollectionOrEmpty(@Nullable Collection<T> list) {
+        return getCollection(list, Collections.emptyList());
     }
 
-    public static <T> void isNotEmptyConsumer(T target,Consumer<T> consumer) {
-        if(!ObjectUtils.isEmpty(target)) {
-            Objects.requireNonNull(consumer,"consumer must not be null!")
-                    .accept(target);
+
+    public static <T> void isNotEmptyConsumer(@Nullable T target, @NotNull Consumer<@NotNull T> consumer) {
+        if (!isEmpty(target)) {
+            consumer.accept(target);
         }
     }
 
-    public static <T,S> S isNotEmptyFunction(T target, Function<T,S> function) {
-        if(!ObjectUtils.isEmpty(target)) {
-            return Objects.requireNonNull(function,"function must not be null!")
-                    .apply(target);
-        }
-        return null;
-    }
-
-    public static <T,S> S isNotEmptySupplier(T target, Supplier<S> function) {
-        if(ObjectUtils.isEmpty(target)) {
-            return Objects.requireNonNull(function,"function must not be null!")
-                    .get();
+    @Nullable
+    public static <T, S> S isNotEmptyFunction(@Nullable T target, @NotNull Function<@NotNull T, @NotNull S> function) {
+        if (!isEmpty(target)) {
+            return function.apply(target);
         }
         return null;
     }
 
-    public static <T> void isEmptyConsumer(T target,NOArgConsumer consumer) {
-        if(ObjectUtils.isEmpty(target)) {
-            Objects.requireNonNull(consumer,"consumer must not be null!")
-                    .accept();
+    @Nullable
+    public static <T, S> S isNotEmptySupplier(@Nullable T target, @NotNull Supplier<S> function) {
+        if (isEmpty(target)) {
+            return function.get();
+        }
+        return null;
+    }
+
+    public static <T> void isEmptyConsumer(@Nullable T target, @NotNull OptionalUtil.NOArgConsumer consumer) {
+        if (isEmpty(target)) {
+            consumer.accept();
         }
     }
 
 
-    public static <T,S> S isEmptySupplier(T target, Supplier<S> function) {
-        if(ObjectUtils.isEmpty(target)) {
-            return Objects.requireNonNull(function,"function must not be null!")
-                    .get();
+    @Nullable
+    public static <T, S> S isEmptySupplier(@Nullable T target, @NotNull Supplier<@NotNull S> function) {
+        if (isEmpty(target)) {
+            return function.get();
         }
         return null;
     }
 
 
-
-    public static <S> S getOrDefault(S source,Supplier<S> targetSupplier) {
-        return Objects.requireNonNullElseGet(source,targetSupplier);
+    @NotNull
+    public static <S> S getOrDefault(@Nullable S source, @NotNull Supplier<@NotNull S> targetSupplier) {
+        S value = isEmptySupplier(source, targetSupplier);
+        assert value != null;
+        return value;
     }
 
-    public static <S> S getOrDefault(S source,S other) {
-        return Objects.requireNonNullElse(source,other);
+    @NotNull
+    public static <S> S getOrDefault(@Nullable S source, @NotNull S other) {
+        S value = isEmptySupplier(source, () -> other);
+        assert value != null;
+        return value;
     }
 
 
-    public static Integer intElvis(Integer value,Integer defaultValue) {
+    @NotNull
+    public static Integer intElvis(@Nullable Integer value, @NotNull Integer defaultValue) {
         return value == null ? defaultValue : value;
     }
 
-    public static Integer intOrZero(Integer value) {
-        return intElvis(value,0);
+    @NotNull
+    public static Integer intOrZero(@Nullable Integer value) {
+        return intElvis(value, 0);
     }
 
-    public static Double doubleElvis(Double value,Double defaultValue) {
+    @NotNull
+    public static Double doubleElvis(@Nullable Double value, @NotNull Double defaultValue) {
         return value == null ? defaultValue : value;
     }
-    public static Double doubleOrZero(Double value) {
-        return doubleElvis(value,0D);
+
+    @NotNull
+    public static Double doubleOrZero(@Nullable Double value) {
+        return doubleElvis(value, 0D);
     }
 
-    public static Double doubleOrZero(String value) {
+    @NotNull
+    public static Double doubleOrZero(@Nullable String value) {
         try {
             Double aDouble = Double.valueOf(value);
             return doubleOrZero(aDouble);
-        }catch (Exception e) {
+        } catch (Exception e) {
             // pass
         }
         return 0D;
     }
 
-    public static String stringElvis(String value,String defaultValue) {
+    @NotNull
+    public static String stringElvis(@Nullable String value, @NotNull String defaultValue) {
+        if (isEmpty(defaultValue)) {
+            throw new IllegalArgumentException("default value must not be blank");
+        }
         return StringUtils.isNotBlank(value) ? value : defaultValue;
     }
 
-    public static String stringElvisOrNull(String value) {
-        return stringElvis(value,null);
+    @Nullable
+    public static String stringElvisOrNull(@Nullable String value) {
+        return isEmpty(value) ? null : value;
     }
 
-    public static <T>  Collection<T> collectionElvis(Collection<T> first,Collection<T> second) {
-        return ElvisUtil.acquireNotNullList(first,second);
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public static <T> @Nullable T getOrNull(@NotNull Optional<T> value) {
+        return value.orElse(null);
     }
+
+    @NotNull
+    public static <T> Collection<T> collectionElvis(@Nullable Collection<T> first, @NotNull Collection<T> second) {
+        return ElvisUtil.getCollection(first, second);
+    }
+
+    @Nullable
+    public static <T> Collection<T> collectionElvisOrNull(@Nullable Collection<T> first) {
+        return isEmpty(first) ? null : first;
+    }
+
+    @NotNull
+    public static <T> List<T> listElvis(@Nullable List<T> first, @NotNull List<T> second) {
+        return ElvisUtil.getList(first, second);
+    }
+
+    @Nullable
+    public static <T> List<T> listElvisOrNull(@NotNull List<T> first) {
+        return isEmpty(first) ? null : first;
+    }
+
+
+    public static boolean isEmpty(@Nullable final Object object) {
+        if (object == null) {
+            return true;
+        }
+        if (object instanceof CharSequence) {
+            return ((CharSequence) object).length() == 0;
+        }
+        if (object.getClass().isArray()) {
+            return Array.getLength(object) == 0;
+        }
+        if (object instanceof Collection<?>) {
+            return ((Collection<?>) object).isEmpty();
+        }
+        if (object instanceof Map<?, ?>) {
+            return ((Map<?, ?>) object).isEmpty();
+        }
+        return false;
+    }
+
 }
